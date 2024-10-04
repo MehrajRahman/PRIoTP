@@ -1,0 +1,5 @@
+IoT Pub/Sub 
+
+./iotclient -lclient1_sensor_log -slocalhost -rgps_2  -p5005 -A
+
+python3 iot-launcher.py ../conf/test.conf localhost 5004 5005 10 4 1 -A
