@@ -69,6 +69,7 @@ struct srtp_packet* create_iotmsg(enum IOTMSG_TYPE type)
   return result;
 }
 
+
 void free_iotsids(struct srtp_packet* msg)
 {
   struct iotmsg_node* sid, *next;
@@ -202,14 +203,14 @@ int iotmsg_set_sid_reliable(struct srtp_packet* msg, bool reliable)
     return -1;
 
   sid = (struct iotmsg_subscribe_node*)(msg)->data.blob;
-  sid->reliable = reliable;
+  sid->reliable = (reliable ? 1 : 0);
 
   return 0;
 }
 
 int iotmsg_update_set_reliable(struct srtp_packet* msg, bool reliable)
 {
-  msg->reliable = reliable;
+  msg->reliable =  (reliable ? 1 : 0);
 
   return 0;
 }
@@ -218,14 +219,14 @@ int iotmsg_update_set_reliable(struct srtp_packet* msg, bool reliable)
 int iotmsg_update_end_marker(struct srtp_packet* msg, bool end_marker)
 {
 
-  msg->end_marker = end_marker;
+  msg->end_marker =(end_marker ? 1 : 0);
 
   return 0;
 }
 
 int iotmsg_update_fragmented(struct srtp_packet* msg, bool fragmented)
 {
-  msg->fragmented = fragmented;
+  msg->fragmented = (fragmented ? 1 : 0);
 
   return 0;
 }
@@ -233,22 +234,24 @@ int iotmsg_update_fragmented(struct srtp_packet* msg, bool fragmented)
 int iotmsg_update_utilize_timestamp(struct srtp_packet* msg, bool utilize_timestamp)
 {
 
-  msg->utilize_timestamp = utilize_timestamp;
+  msg->utilize_timestamp = (utilize_timestamp ? 1 : 0);
 
   return 0;
 }
 
-int iotmsg_set_timestamp(struct srtp_packet* msg, int timestamp)
+int iotmsg_set_timestamp(struct srtp_packet* msg, uint32_t timestamp)
 {
  msg->timestamp = timestamp;
  return 0;
 }
 
-int iotmsg_set_seq(struct srtp_packet* msg, int seq)
+int iotmsg_set_seq(struct srtp_packet* msg, uint32_t seq)
 {
    msg->seq_no = seq;
    return 0;
 }
+
+
 
 int iotmsg_get_seq_no(const struct srtp_packet* msg)
 {
@@ -256,7 +259,7 @@ int iotmsg_get_seq_no(const struct srtp_packet* msg)
   return msg->seq_no;
 }
 
-int iotmsg_set_frag_no(struct srtp_packet* msg, int no) {
+int iotmsg_set_frag_no(struct srtp_packet* msg, uint32_t no) {
   int ret = -1;
   switch(msg->type) {
   case UPDATE:
@@ -277,7 +280,7 @@ int iotmsg_get_frag_no(const struct srtp_packet* msg) {
   return ret;
 }
 
-int iotmsg_set_frag_total(struct srtp_packet* msg, int total) {
+int iotmsg_set_frag_total(struct srtp_packet* msg, uint32_t total) {
   int ret = -1;
   switch(msg->type) {
   case UPDATE:

@@ -52,7 +52,7 @@ def main(argv):
   # NOTE: depending on your coding language the values in the list will change
   # Also implement SIGINT (Ctrl+C), so that we can kill them. 
   FNULL = open(os.devnull, 'w')
-  spawns.append(subprocess.Popen(["../iot/application/iotserver", "-i"+ipaddr, "-p"+port, "-s"+client_port,
+  spawns.append(subprocess.Popen(["../iot/application/SRTP_server", "-i"+ipaddr, "-p"+port, "-s"+client_port,
     "-l./sensor.list","-c"+client_config],shell=False,stdout=FNULL))
   
   time.sleep(sim_time)

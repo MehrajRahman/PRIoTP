@@ -19,7 +19,9 @@ for(s in sensors) {
   time_start = min(server_side$V1)+1 #add this to allow sensor to generate smth
   time_stop = max(server_side$V1)
   time_range = time_start:time_stop
+  
   for(c in clients) {
+    cat("client", c , "\n");
     client_dir = paste(c, sensor_dir, sep="_")
     tmp = file.path(client_dir, paste(s, "log", sep="."))
     client_side <- read.table(tmp)

@@ -51,6 +51,7 @@ struct sensor_logger* __add_sensor_logger(const char* id, const char* extension)
 
 struct sensor_logger* add_sensor_logger(const char* id)
 {
+  
   struct sensor_logger* sl = __add_sensor_logger(id, ".log");
   return sl;
 }

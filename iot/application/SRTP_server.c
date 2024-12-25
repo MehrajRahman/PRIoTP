@@ -20,7 +20,7 @@ static struct logger* l = NULL;
 static bool nack_support = true;
 void usage()
 {
-  printf("\n Usage: SRTP_server -i <ip address> -p <sensor publish port> -s <client subscribe port> -l <sensor list> -c <clients config>\n\n");
+  printf("\n Usage: iotserver -i <ip address> -p <sensor publish port> -s <client subscribe port> -l <sensor list> -c <clients config>\n\n");
 }
 
 int parse_parameters(int argc, char *argv[],
@@ -91,7 +91,7 @@ int on_client_msg(struct client_node* node, const struct srtp_packet *msg, struc
   struct iotmsg_node* sid;
   struct sensor_node* sensor;
   struct srtp_packet* sack_msg;
-  const struct srtp_packet* sub_msg;
+  struct srtp_packet* sub_msg;
   struct srtp_packet* list_resp_msg;
   *response = NULL;
 
@@ -224,12 +224,12 @@ void init_systems()
   init_clients();
   init_transport();
   init_subscriptions();
-  // init_messages();
+  init_messages();
   init_sensor_types();
   init_sensors();
   init_bson_parser();
   init_sensor_parser();
-  init_sensor_logger("./server_sensor_log");
+  init_sensor_logger("../iot/src/server_sensor_log");
 }
 
 void shutdown_systems()
@@ -238,7 +238,7 @@ void shutdown_systems()
   shutdown_clients();
   shutdown_transport();
   shutdown_subscriptions();
-  // shutdown_messages();
+  shutdown_messages();
   shutdown_sensor_types();
   shutdown_sensors();
   shutdown_bson_parser();
@@ -286,4 +286,3 @@ int main(int argc, char *argv[])
   shutdown_systems();
   return EXIT_SUCCESS;
 }
-

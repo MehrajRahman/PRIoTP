@@ -33,10 +33,10 @@ static struct logger* l = NULL;
 static bool active_flow_enabled = false;
 
 void usage() {
-  printf("SRTP_client [-l log_dir] [-a|-A] [-q] [-s <server_ip>] [-p <server_port>] [-r sensor_id] [sensor_id_1, sensor_id_2, ...]\n");
+  printf("iotclient [-l log_dir] [-a|-A] [-q] [-s <server_ip>] [-p <server_port>] [-r sensor_id] [sensor_id_1, sensor_id_2, ...]\n");
   printf("\t-l\t\t  Specifies the directory for output sensor logs\n");
-  printf("\t-s <server_ip>\t  The IP address of the SRTP server, default localhost\n");
-  printf("\t-p <server_port>  The port number of the SRTP server, default 5001\n");
+  printf("\t-s <server_ip>\t  The IP address of the IoT server, default localhost\n");
+  printf("\t-p <server_port>  The port number of the IoT server, default 5001\n");
   printf("\t-r <sensor_id>\t  Subscribes reliably to the sensor\n");
   printf("\t-H <client_ip>\t  The IP address of the client, default localhost\n");
   printf("\t-a(-A)\t\t  Subscribes (reliably) to all sensors returned by the server\n");
@@ -108,9 +108,7 @@ int client_interface()
   int selected;
   printf("Client operation options: \n");
   printf(" 1. Query sensor list \n 2. Subscribe all \n 3. subscribe a particular sensor \n 4. Subscribe with reliability \n 5. Unsubscribe \n 6. Quit\n\n Enter your choice:");
-  if(scanf("%d", &selected) == 1){
-    return -1;
-  }
+  scanf("%d", &selected);
   return selected;
 }
 
@@ -129,18 +127,14 @@ void process_user_input(int sd, int* client_operation)
   case CLIENT_OPERATION_SUBSCRIBE_TO_SENSOR_NONRELIABLE:
     /*subscribe to specific sensor*/
     printf("Enter sensor_id =");
-    if(scanf("%s", input_sensor) == 1){
-      return ;
-    }
+    scanf("%s", input_sensor);
     if(!sub_msg ) sub_msg = create_iotmsg(SUBSCRIBE);  
     iotmsg_add_sid(sub_msg, input_sensor);
     break;
   case CLIENT_OPERATION_SUBSCRIBE_TO_SENSOR_RELIABLE:
     /*subscribe to specific sensor with reliability*/
     printf("Enter sensor_id =");
-    if(scanf("%s", input_sensor) == 1){
-      return ;
-    }
+    scanf("%s", input_sensor);
     if(!sub_msg ) sub_msg = create_iotmsg(SUBSCRIBE);
     iotmsg_add_sid(sub_msg, input_sensor );
     iotmsg_set_sid_reliable( sub_msg, true );					

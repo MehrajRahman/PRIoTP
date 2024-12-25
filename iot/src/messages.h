@@ -9,7 +9,7 @@
 
 #define BUFSIZE 1600
 
-enum IOTMSG_TYPE {
+enum IOTMSG_TYPE  {
   LIST,
   LIST_RESPONSE,
   SUBSCRIBE,
@@ -48,11 +48,19 @@ struct iotmsg_subscribe_ack_node {
 struct srtp_packet {
   uint32_t version:2;
   uint32_t type:4;
-  bool end_marker;
-  bool reliable;
-  bool fragmented;
-  bool utilize_timestamp;
-  uint16_t seq_no;
+  uint32_t start_marker:1;
+  uint32_t end_marker:1;
+  uint32_t reliable:1;
+  // uint32_t timestamp:1;
+  uint32_t fragmented:1;
+  uint32_t utilize_timestamp:1;
+  uint32_t seq_no:20;
+
+  // bool end_marker;
+  // bool reliable;
+  // bool fragmented;
+  // bool utilize_timestamp;
+  // uint16_t seq_no;
   uint32_t timestamp;
 
   //not part of original srtp packet will remove once refactored
@@ -75,13 +83,13 @@ int iotmsg_set_sid_reliable(struct srtp_packet* msg, bool reliable);
 int iotmsg_update_set_reliable(struct srtp_packet* msg, bool reliable);
 
 /* Used for update and update_ack message to set and get the sequence number and sid */
-int iotmsg_set_seq(struct srtp_packet* msg, int seq);
+int iotmsg_set_seq(struct srtp_packet* msg, uint32_t seq);
 int iotmsg_set_sid(struct srtp_packet* msg, const char* id);
 int iotmsg_get_seq_no(const struct srtp_packet* msg);
 
 /* Used for update messages to set the fragmentation numbers */
-int iotmsg_set_frag_no(struct srtp_packet* msg, int no);
-int iotmsg_set_frag_total(struct srtp_packet* msg, int total);
+int iotmsg_set_frag_no(struct srtp_packet* msg, uint32_t no);
+int iotmsg_set_frag_total(struct srtp_packet* msg, uint32_t total);
 
 int iotmsg_get_frag_no(const struct srtp_packet* msg);
 int iotmsg_get_frag_total(const struct srtp_packet* msg);
@@ -98,13 +106,6 @@ int iotmsg_set_data(struct srtp_packet* msg, const struct void_data* data);
 /* To copy one value into already allocated data buffer */
 int iotmsg_copy_data(struct srtp_packet* msg, int offset, const struct void_data* value);
 int send_iotmsg(int sd, const struct srtp_packet* msg);
-
-
-int iotmsg_update_end_marker(struct srtp_packet* msg, bool end_marker);
-int iotmsg_update_utilize_timestamp(struct srtp_packet* msg, bool utilize_timestamp);
-int iotmsg_update_fragmented(struct srtp_packet* msg, bool fragmented);
-int iotmsg_set_timestamp(struct srtp_packet* msg, int timestamp);
-int iotmsg_set_sensor_type(struct srtp_packet* msg, uint32_t type);
 
 //helper function for core srtp protocol
 uint32_t generate_ntp_timestamp();

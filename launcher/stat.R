@@ -1,5 +1,5 @@
-sensor_dir <- "sensor_log"
-server_dir <- "server_sensor_log"
+sensor_dir <- "../iot/src/sensor_log"
+server_dir <- "../iot/src/server_sensor_log"
 dirs <- dir(pattern = "*_log$")
 tmp = unlist(strsplit(dirs, split="_"))
 clients <- tmp[(tmp != "sensor") & (tmp != "server") & (tmp != "log")]
@@ -19,7 +19,9 @@ for(s in sensors) {
   time_start = min(server_side$V1)+1 #add this to allow sensor to generate smth
   time_stop = max(server_side$V1)
   time_range = time_start:time_stop
+  cat("clients", clients , "\n");
   for(c in clients) {
+    cat("c", c , "\n");
     client_dir = paste(c, sensor_dir, sep="_")
     tmp = file.path(client_dir, paste(s, "log", sep="."))
     client_side <- read.table(tmp)

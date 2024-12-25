@@ -89,6 +89,8 @@ struct sensor_node* add_sensor(const char* id, enum SENSOR_TYPE type)
   node->next = sensors_list;
   sensors_list = node;
 
+  log_debug(l, "\n\n\nTesting Mehraj id %s\n", id);
+
   add_sensor_logger(id);
   if( type == CAMERA ) add_sensor_dump(id);
 
