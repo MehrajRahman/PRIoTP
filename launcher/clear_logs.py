@@ -4,7 +4,7 @@ import sys
 import os
 
 def usage():
-    print "clear_logs.py"
+    print("clear_logs.py")
 
 def main(argv):
     '''

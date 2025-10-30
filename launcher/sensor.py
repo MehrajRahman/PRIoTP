@@ -11,7 +11,7 @@ import signal
 
 MTU=1300
 #Camera_data_size = 0
-sensor_dir="../iot/src/sensor_log/"
+sensor_dir="../PRTP/src/sensor_log/"
     
 def signal_handler(signal, frame):
     print ('shutting down sensor...')

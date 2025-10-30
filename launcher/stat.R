@@ -1,5 +1,5 @@
-sensor_dir <- "../iot/src/sensor_log"
-server_dir <- "../iot/src/server_sensor_log"
+sensor_dir <- "../PRTP/src/sensor_log"
+server_dir <- "../PRTP/src/server_sensor_log"
 dirs <- dir(pattern = "*_log$")
 tmp = unlist(strsplit(dirs, split="_"))
 clients <- tmp[(tmp != "sensor") & (tmp != "server") & (tmp != "log")]

@@ -11,7 +11,7 @@ import time
 spawns=[] #list of subprocesses spawned 
 
 def usage():
-    print( "iot-launcher.py <clients_configuration_file> <server_ip> <server_sensor_port> <server_client_port> <sim_time> ")
+    print( "sensor-launcher.py <clients_configuration_file> <server_ip> <server_sensor_port> <server_client_port> <sim_time> ")
 
 def signal_handler(signal, frame):
   print( 'Shutting down Launcher...')
@@ -22,7 +22,7 @@ def main(argv):
   ipaddr="localhost"
   port="5000"
   client_port="5001"
-  client_config="../iot/conf/test.conf"
+  client_config="./PRTP/conf/test.conf"
   sim_time=10 #seconds
   
   if(len(argv)>=1):
@@ -52,7 +52,7 @@ def main(argv):
   # NOTE: depending on your coding language the values in the list will change
   # Also implement SIGINT (Ctrl+C), so that we can kill them. 
   FNULL = open(os.devnull, 'w')
-  spawns.append(subprocess.Popen(["../iot/application/SRTP_server", "-i"+ipaddr, "-p"+port, "-s"+client_port,
+  spawns.append(subprocess.Popen(["../PRTP/application/PRTP_server", "-i"+ipaddr, "-p"+port, "-s"+client_port,
     "-l./sensor.list","-c"+client_config],shell=False,stdout=FNULL))
   
   time.sleep(sim_time)
