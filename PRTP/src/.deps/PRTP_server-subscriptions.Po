@@ -93,7 +93,7 @@
  /usr/include/x86_64-linux-gnu/bits/fp-fast.h \
  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
  /usr/include/x86_64-linux-gnu/bits/mathcalls.h ../src/utils.h \
- ../src/clients_config.h
+ ../src/clients_config.h ../src/q_agent.h
 /usr/include/stdc-predef.h:
 ../src/subscriptions.h:
 ../src/sensors.h:
@@ -207,3 +207,4 @@
 /usr/include/x86_64-linux-gnu/bits/mathcalls.h:
 ../src/utils.h:
 ../src/clients_config.h:
+../src/q_agent.h:

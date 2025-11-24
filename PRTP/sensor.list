@@ -1,4 +1,4 @@
-device_0
-temp_1
-gps_2
-camera_3
+device_0 DEVICE
+temp_1 TEMP
+gps_2 GPS
+camera_3 CAMERA

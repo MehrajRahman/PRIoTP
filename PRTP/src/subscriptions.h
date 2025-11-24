@@ -36,6 +36,8 @@ struct subscription_node {
   int seq_no;
 
   struct transport_status t_status;
+    int q_state;      /* Store (rtt, importance, action) for feedback */
+  int q_action;
 };
 
 /* Scan through subscriptions, construct and send necessary updates */

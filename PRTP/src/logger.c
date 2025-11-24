@@ -16,55 +16,10 @@ struct logger* init_logger(FILE* print_file, FILE* debug_file, FILE* error_file,
   return l;
 }
 
-// void log_print(const struct logger* l, const char* format, ...)
-// {
-//   va_list arg;
-//   /* struct timeval now; */
-//   if( l->f_print == NULL ) return;
-//   /* gettimeofday(&now, 0);
-//   fprintf(l->f_print, "[%u.%u] %s: ", now.tv_sec, now.tv_usec, l->module);
-//   */
-//   va_start(arg, format);
-//   vfprintf(l->f_print, format, arg);
-//   va_end(arg);
-// }
-
-// #define DEBUG_LOG
-// void log_debug(const struct logger* l, const char* format, ...)
-// {
-// #ifdef DEBUG_LOG
-//   va_list arg;
-//   struct timeval now;
-//   if( l->f_debug == NULL ) return;
-//   gettimeofday(&now, 0);
-//   fprintf(l->f_debug, "\033[95m [%u.%02u] %s: \033[0m",
-//           (unsigned int)now.tv_sec, (unsigned int)now.tv_usec, l->module);
-
-//   va_start(arg, format);
-//   vfprintf(l->f_debug, format, arg);
-//   va_end(arg);
-//   fprintf(l->f_debug, "\033[0m");
-// #endif
-// }
-
-// void log_error(const struct logger* l, const char* format, ...)
-// {
-//   va_list arg;
-//   struct timeval now;
-//   if( l->f_error == NULL ) return;
-//   gettimeofday(&now, 0);
-//   fprintf(l->f_error, "\033[91m [%u.%02u] %s: \033[0m",
-//           (unsigned int)now.tv_sec, (unsigned int)now.tv_usec, l->module);
-//   va_start(arg, format);
-//   vfprintf(l->f_error, format, arg);
-//   va_end(arg);
-// }
-
 void log_print(const struct logger* l, const char* format, ...)
 {
   va_list arg;
   
-  // Add NULL check
   if (l == NULL) return;
   if (l->f_print == NULL) return;
   
@@ -73,13 +28,15 @@ void log_print(const struct logger* l, const char* format, ...)
   va_end(arg);
 }
 
+/* ENABLE DEBUG LOGGING - Uncomment this line to see Q-agent decisions */
+#define DEBUG_LOG
+
 void log_debug(const struct logger* l, const char* format, ...)
 {
 #ifdef DEBUG_LOG
   va_list arg;
   struct timeval now;
   
-  // Add NULL check FIRST
   if (l == NULL) return;
   if (l->f_debug == NULL) return;
   
@@ -99,7 +56,6 @@ void log_error(const struct logger* l, const char* format, ...)
   va_list arg;
   struct timeval now;
   
-  // Add NULL check FIRST
   if (l == NULL) return;
   if (l->f_error == NULL) return;
   

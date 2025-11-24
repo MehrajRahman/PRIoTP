@@ -19,6 +19,7 @@
 #include "../src/sensor_logger.h"
 #include "../src/fragment_buffer.h"
 
+
 #define HOSTNAME_SIZE 255
 #define INPUTSIZE 10
 

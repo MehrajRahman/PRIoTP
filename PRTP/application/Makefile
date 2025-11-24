@@ -89,7 +89,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-unknown-linux-gnu
 host_triplet = x86_64-unknown-linux-gnu
-bin_PROGRAMS = PRTP_server$(EXEEXT) PRTP_client$(EXEEXT)
+bin_PROGRAMS = PRTP_server$(EXEEXT) PRTP_client$(EXEEXT) \
+	q_agent_test$(EXEEXT)
 subdir = application
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
@@ -139,11 +140,19 @@ am_PRTP_server_OBJECTS = PRTP_server-PRTP_server.$(OBJEXT) \
 	../src/PRTP_server-clients.$(OBJEXT) \
 	../src/PRTP_server-sensor_parser.$(OBJEXT) \
 	../src/PRTP_server-subscriptions.$(OBJEXT) \
-	../src/PRTP_server-clients_config.$(OBJEXT)
+	../src/PRTP_server-clients_config.$(OBJEXT) \
+	../src/PRTP_server-q_agent.$(OBJEXT)
 PRTP_server_OBJECTS = $(am_PRTP_server_OBJECTS)
 PRTP_server_DEPENDENCIES = libpubsub.la
 PRTP_server_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(PRTP_server_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_q_agent_test_OBJECTS = ../src/q_agent_test-q_agent_test.$(OBJEXT) \
+	../src/q_agent_test-q_agent.$(OBJEXT)
+q_agent_test_OBJECTS = $(am_q_agent_test_OBJECTS)
+q_agent_test_DEPENDENCIES = libpubsub.la
+q_agent_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(q_agent_test_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
@@ -164,6 +173,7 @@ am__depfiles_remade = ../src/$(DEPDIR)/PRTP_client-active_flow.Po \
 	../src/$(DEPDIR)/PRTP_client-client_module.Po \
 	../src/$(DEPDIR)/PRTP_server-clients.Po \
 	../src/$(DEPDIR)/PRTP_server-clients_config.Po \
+	../src/$(DEPDIR)/PRTP_server-q_agent.Po \
 	../src/$(DEPDIR)/PRTP_server-sensor_parser.Po \
 	../src/$(DEPDIR)/PRTP_server-sensors.Po \
 	../src/$(DEPDIR)/PRTP_server-subscriptions.Po \
@@ -178,6 +188,8 @@ am__depfiles_remade = ../src/$(DEPDIR)/PRTP_client-active_flow.Po \
 	../src/$(DEPDIR)/libpubsub_la-transport.Plo \
 	../src/$(DEPDIR)/libpubsub_la-utils.Plo \
 	../src/$(DEPDIR)/libpubsub_la-validator.Plo \
+	../src/$(DEPDIR)/q_agent_test-q_agent.Po \
+	../src/$(DEPDIR)/q_agent_test-q_agent_test.Po \
 	./$(DEPDIR)/PRTP_client-PRTP_client.Po \
 	./$(DEPDIR)/PRTP_server-PRTP_server.Po
 am__mv = mv -f
@@ -200,9 +212,9 @@ am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libpubsub_la_SOURCES) $(PRTP_client_SOURCES) \
-	$(PRTP_server_SOURCES)
+	$(PRTP_server_SOURCES) $(q_agent_test_SOURCES)
 DIST_SOURCES = $(libpubsub_la_SOURCES) $(PRTP_client_SOURCES) \
-	$(PRTP_server_SOURCES)
+	$(PRTP_server_SOURCES) $(q_agent_test_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -362,13 +374,17 @@ libpubsub_la_SOURCES = ../src/logger.c ../src/utils.c ../src/messages.c ../src/b
 					  ../src/validator.c ../src/sensor_logger.c ../src/transport.c ../src/fragment_buffer.c ../src/congestion_control.c
 
 PRTP_server_SOURCES = PRTP_server.c ../src/sensors.h ../src/sensors.c ../src/clients.h ../src/clients.c \
-	../src/sensor_parser.h ../src/sensor_parser.c ../src/subscriptions.h ../src/subscriptions.c ../src/clients_config.h ../src/clients_config.c
+	../src/sensor_parser.h ../src/sensor_parser.c ../src/subscriptions.h ../src/subscriptions.c ../src/clients_config.h ../src/clients_config.c \
+	../src/q_agent.c
 
 PRTP_server_CFLAGS = -Wall -pedantic
 PRTP_server_LDADD = libpubsub.la
 PRTP_client_SOURCES = PRTP_client.c ../src/client_module.c ../src/active_flow.c
 PRTP_client_LDADD = libpubsub.la
 PRTP_client_CFLAGS = -Wall -pedantic
+q_agent_test_SOURCES = ../src/q_agent_test.c ../src/q_agent.c
+q_agent_test_CFLAGS = -Wall -pedantic
+q_agent_test_LDADD = libpubsub.la
 all: all-am
 
 .SUFFIXES:
@@ -511,10 +527,20 @@ PRTP_client$(EXEEXT): $(PRTP_client_OBJECTS) $(PRTP_client_DEPENDENCIES) $(EXTRA
 	../src/$(DEPDIR)/$(am__dirstamp)
 ../src/PRTP_server-clients_config.$(OBJEXT): ../src/$(am__dirstamp) \
 	../src/$(DEPDIR)/$(am__dirstamp)
+../src/PRTP_server-q_agent.$(OBJEXT): ../src/$(am__dirstamp) \
+	../src/$(DEPDIR)/$(am__dirstamp)
 
 PRTP_server$(EXEEXT): $(PRTP_server_OBJECTS) $(PRTP_server_DEPENDENCIES) $(EXTRA_PRTP_server_DEPENDENCIES) 
 	@rm -f PRTP_server$(EXEEXT)
 	$(AM_V_CCLD)$(PRTP_server_LINK) $(PRTP_server_OBJECTS) $(PRTP_server_LDADD) $(LIBS)
+../src/q_agent_test-q_agent_test.$(OBJEXT): ../src/$(am__dirstamp) \
+	../src/$(DEPDIR)/$(am__dirstamp)
+../src/q_agent_test-q_agent.$(OBJEXT): ../src/$(am__dirstamp) \
+	../src/$(DEPDIR)/$(am__dirstamp)
+
+q_agent_test$(EXEEXT): $(q_agent_test_OBJECTS) $(q_agent_test_DEPENDENCIES) $(EXTRA_q_agent_test_DEPENDENCIES) 
+	@rm -f q_agent_test$(EXEEXT)
+	$(AM_V_CCLD)$(q_agent_test_LINK) $(q_agent_test_OBJECTS) $(q_agent_test_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -528,6 +554,7 @@ include ../src/$(DEPDIR)/PRTP_client-active_flow.Po # am--include-marker
 include ../src/$(DEPDIR)/PRTP_client-client_module.Po # am--include-marker
 include ../src/$(DEPDIR)/PRTP_server-clients.Po # am--include-marker
 include ../src/$(DEPDIR)/PRTP_server-clients_config.Po # am--include-marker
+include ../src/$(DEPDIR)/PRTP_server-q_agent.Po # am--include-marker
 include ../src/$(DEPDIR)/PRTP_server-sensor_parser.Po # am--include-marker
 include ../src/$(DEPDIR)/PRTP_server-sensors.Po # am--include-marker
 include ../src/$(DEPDIR)/PRTP_server-subscriptions.Po # am--include-marker
@@ -542,6 +569,8 @@ include ../src/$(DEPDIR)/libpubsub_la-sensor_types.Plo # am--include-marker
 include ../src/$(DEPDIR)/libpubsub_la-transport.Plo # am--include-marker
 include ../src/$(DEPDIR)/libpubsub_la-utils.Plo # am--include-marker
 include ../src/$(DEPDIR)/libpubsub_la-validator.Plo # am--include-marker
+include ../src/$(DEPDIR)/q_agent_test-q_agent.Po # am--include-marker
+include ../src/$(DEPDIR)/q_agent_test-q_agent_test.Po # am--include-marker
 include ./$(DEPDIR)/PRTP_client-PRTP_client.Po # am--include-marker
 include ./$(DEPDIR)/PRTP_server-PRTP_server.Po # am--include-marker
 
@@ -778,6 +807,48 @@ PRTP_server-PRTP_server.obj: PRTP_server.c
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(PRTP_server_CFLAGS) $(CFLAGS) -c -o ../src/PRTP_server-clients_config.obj `if test -f '../src/clients_config.c'; then $(CYGPATH_W) '../src/clients_config.c'; else $(CYGPATH_W) '$(srcdir)/../src/clients_config.c'; fi`
 
+../src/PRTP_server-q_agent.o: ../src/q_agent.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(PRTP_server_CFLAGS) $(CFLAGS) -MT ../src/PRTP_server-q_agent.o -MD -MP -MF ../src/$(DEPDIR)/PRTP_server-q_agent.Tpo -c -o ../src/PRTP_server-q_agent.o `test -f '../src/q_agent.c' || echo '$(srcdir)/'`../src/q_agent.c
+	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/PRTP_server-q_agent.Tpo ../src/$(DEPDIR)/PRTP_server-q_agent.Po
+#	$(AM_V_CC)source='../src/q_agent.c' object='../src/PRTP_server-q_agent.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(PRTP_server_CFLAGS) $(CFLAGS) -c -o ../src/PRTP_server-q_agent.o `test -f '../src/q_agent.c' || echo '$(srcdir)/'`../src/q_agent.c
+
+../src/PRTP_server-q_agent.obj: ../src/q_agent.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(PRTP_server_CFLAGS) $(CFLAGS) -MT ../src/PRTP_server-q_agent.obj -MD -MP -MF ../src/$(DEPDIR)/PRTP_server-q_agent.Tpo -c -o ../src/PRTP_server-q_agent.obj `if test -f '../src/q_agent.c'; then $(CYGPATH_W) '../src/q_agent.c'; else $(CYGPATH_W) '$(srcdir)/../src/q_agent.c'; fi`
+	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/PRTP_server-q_agent.Tpo ../src/$(DEPDIR)/PRTP_server-q_agent.Po
+#	$(AM_V_CC)source='../src/q_agent.c' object='../src/PRTP_server-q_agent.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(PRTP_server_CFLAGS) $(CFLAGS) -c -o ../src/PRTP_server-q_agent.obj `if test -f '../src/q_agent.c'; then $(CYGPATH_W) '../src/q_agent.c'; else $(CYGPATH_W) '$(srcdir)/../src/q_agent.c'; fi`
+
+../src/q_agent_test-q_agent_test.o: ../src/q_agent_test.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -MT ../src/q_agent_test-q_agent_test.o -MD -MP -MF ../src/$(DEPDIR)/q_agent_test-q_agent_test.Tpo -c -o ../src/q_agent_test-q_agent_test.o `test -f '../src/q_agent_test.c' || echo '$(srcdir)/'`../src/q_agent_test.c
+	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/q_agent_test-q_agent_test.Tpo ../src/$(DEPDIR)/q_agent_test-q_agent_test.Po
+#	$(AM_V_CC)source='../src/q_agent_test.c' object='../src/q_agent_test-q_agent_test.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -c -o ../src/q_agent_test-q_agent_test.o `test -f '../src/q_agent_test.c' || echo '$(srcdir)/'`../src/q_agent_test.c
+
+../src/q_agent_test-q_agent_test.obj: ../src/q_agent_test.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -MT ../src/q_agent_test-q_agent_test.obj -MD -MP -MF ../src/$(DEPDIR)/q_agent_test-q_agent_test.Tpo -c -o ../src/q_agent_test-q_agent_test.obj `if test -f '../src/q_agent_test.c'; then $(CYGPATH_W) '../src/q_agent_test.c'; else $(CYGPATH_W) '$(srcdir)/../src/q_agent_test.c'; fi`
+	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/q_agent_test-q_agent_test.Tpo ../src/$(DEPDIR)/q_agent_test-q_agent_test.Po
+#	$(AM_V_CC)source='../src/q_agent_test.c' object='../src/q_agent_test-q_agent_test.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -c -o ../src/q_agent_test-q_agent_test.obj `if test -f '../src/q_agent_test.c'; then $(CYGPATH_W) '../src/q_agent_test.c'; else $(CYGPATH_W) '$(srcdir)/../src/q_agent_test.c'; fi`
+
+../src/q_agent_test-q_agent.o: ../src/q_agent.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -MT ../src/q_agent_test-q_agent.o -MD -MP -MF ../src/$(DEPDIR)/q_agent_test-q_agent.Tpo -c -o ../src/q_agent_test-q_agent.o `test -f '../src/q_agent.c' || echo '$(srcdir)/'`../src/q_agent.c
+	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/q_agent_test-q_agent.Tpo ../src/$(DEPDIR)/q_agent_test-q_agent.Po
+#	$(AM_V_CC)source='../src/q_agent.c' object='../src/q_agent_test-q_agent.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -c -o ../src/q_agent_test-q_agent.o `test -f '../src/q_agent.c' || echo '$(srcdir)/'`../src/q_agent.c
+
+../src/q_agent_test-q_agent.obj: ../src/q_agent.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -MT ../src/q_agent_test-q_agent.obj -MD -MP -MF ../src/$(DEPDIR)/q_agent_test-q_agent.Tpo -c -o ../src/q_agent_test-q_agent.obj `if test -f '../src/q_agent.c'; then $(CYGPATH_W) '../src/q_agent.c'; else $(CYGPATH_W) '$(srcdir)/../src/q_agent.c'; fi`
+	$(AM_V_at)$(am__mv) ../src/$(DEPDIR)/q_agent_test-q_agent.Tpo ../src/$(DEPDIR)/q_agent_test-q_agent.Po
+#	$(AM_V_CC)source='../src/q_agent.c' object='../src/q_agent_test-q_agent.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(q_agent_test_CFLAGS) $(CFLAGS) -c -o ../src/q_agent_test-q_agent.obj `if test -f '../src/q_agent.c'; then $(CYGPATH_W) '../src/q_agent.c'; else $(CYGPATH_W) '$(srcdir)/../src/q_agent.c'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -918,6 +989,7 @@ distclean: distclean-am
 	-rm -f ../src/$(DEPDIR)/PRTP_client-client_module.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-clients.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-clients_config.Po
+	-rm -f ../src/$(DEPDIR)/PRTP_server-q_agent.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-sensor_parser.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-sensors.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-subscriptions.Po
@@ -932,6 +1004,8 @@ distclean: distclean-am
 	-rm -f ../src/$(DEPDIR)/libpubsub_la-transport.Plo
 	-rm -f ../src/$(DEPDIR)/libpubsub_la-utils.Plo
 	-rm -f ../src/$(DEPDIR)/libpubsub_la-validator.Plo
+	-rm -f ../src/$(DEPDIR)/q_agent_test-q_agent.Po
+	-rm -f ../src/$(DEPDIR)/q_agent_test-q_agent_test.Po
 	-rm -f ./$(DEPDIR)/PRTP_client-PRTP_client.Po
 	-rm -f ./$(DEPDIR)/PRTP_server-PRTP_server.Po
 	-rm -f Makefile
@@ -983,6 +1057,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ../src/$(DEPDIR)/PRTP_client-client_module.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-clients.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-clients_config.Po
+	-rm -f ../src/$(DEPDIR)/PRTP_server-q_agent.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-sensor_parser.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-sensors.Po
 	-rm -f ../src/$(DEPDIR)/PRTP_server-subscriptions.Po
@@ -997,6 +1072,8 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ../src/$(DEPDIR)/libpubsub_la-transport.Plo
 	-rm -f ../src/$(DEPDIR)/libpubsub_la-utils.Plo
 	-rm -f ../src/$(DEPDIR)/libpubsub_la-validator.Plo
+	-rm -f ../src/$(DEPDIR)/q_agent_test-q_agent.Po
+	-rm -f ../src/$(DEPDIR)/q_agent_test-q_agent_test.Po
 	-rm -f ./$(DEPDIR)/PRTP_client-PRTP_client.Po
 	-rm -f ./$(DEPDIR)/PRTP_server-PRTP_server.Po
 	-rm -f Makefile

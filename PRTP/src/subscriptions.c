@@ -197,6 +197,7 @@
 #include "utils.h"
 #include "logger.h"
 #include "clients_config.h"
+#include "q_agent.h"
 
 static struct subscription_node* subscriptions_list = NULL;
 static struct logger* l = NULL;
@@ -239,9 +240,80 @@ int send_update( struct subscription_node* node )
   log_debug(l, "sending update. %s %d\n", 
             msg->data.update.sid, msg->data.update.sensor_type);
   
-  if (iotmsg_set_data(msg, &(node->sensor->data)) != -1) {
-    log_debug(l, "checking:: sending update. %s %d\n", 
+  // if (iotmsg_set_data(msg, &(node->sensor->data)) != -1) {
+  //   log_debug(l, "checking:: sending update. %s %d\n", 
+  //             msg->data.update.sid, msg->data.update.sensor_type);
+  //   ret = send_client_message(&(node->t_status), msg, node->client);
+  // }
+
+    if (iotmsg_set_data(msg, &(node->sensor->data)) != -1) {
+    log_debug(l, "checking:: sending update. %s %d\n",
               msg->data.update.sid, msg->data.update.sensor_type);
+
+    /* --- Q-agent decision --- */
+    extern q_agent_t server_q_agent;
+    extern bool q_learning_enabled;
+
+    /* Enhanced Q-learning section in subscriptions.c send_update() 
+ * Add this code right after the importance mapping
+ */
+
+    if (q_learning_enabled) {
+      /* Estimate RTT / network state */
+      int estimated_rtt = node->t_status.sched.delay_msecs;
+      int rtt_level = (estimated_rtt > 150) ? 1 : 0;
+
+      /* Map semantic -> importance */
+      int importance = 1; /* default NORMAL */
+      const char* sensor_type_str = "UNKNOWN";
+      
+      if (node->sensor->type == CAMERA) {
+        sensor_type_str = "CAMERA";
+        if (node->sensor->data.blob && strncmp((char*)node->sensor->data.blob, "NO_MOTION", 9) == 0) {
+          importance = 0;  // LOW
+        } else {
+          importance = 2;  // HIGH (motion detected)
+        }
+      } else if (node->sensor->type == TEMP) {
+        sensor_type_str = "TEMP";
+        importance = 1;  // NORMAL
+      } else if (node->sensor->type == DEVICE) {
+        sensor_type_str = "DEVICE";
+        importance = 1;  // NORMAL (or 2 for STATUS_CHANGE)
+      } else if (node->sensor->type == GPS) {
+        sensor_type_str = "GPS";
+        importance = 1;  // NORMAL
+      }
+
+      int action = q_agent_choose_action(&server_q_agent, rtt_level, importance);
+
+      /* ENHANCED LOGGING - Use log_print to always show decisions */
+      const char* action_str[] = {"UNRELIABLE", "RELIABLE", "DROP"};
+      const char* imp_str[] = {"LOW", "NORMAL", "HIGH"};
+      
+      log_print(l, "🤖 Q-Decision: %-10s | RTT=%dms(lvl=%d) | IMP=%-6s | ACTION=%-10s | Q=%.2f\n",
+                node->sensor->id,
+                estimated_rtt, rtt_level,
+                imp_str[importance],
+                action_str[action],
+                server_q_agent.Q[rtt_level][importance][action]);
+
+      if (action == 2) {
+        /* Drop packet */
+        log_print(l, "   ❌ DROPPED\n");
+        free_iotmsg(msg);
+        return -1;
+      } else if (action == 1) {
+        msg->reliable = 1;
+      } else {
+        msg->reliable = 0;
+      }
+
+      /* Store state/action for feedback */
+      node->q_state = (rtt_level << 4) | (importance << 2) | action;
+      node->q_action = action;
+    }
+
     ret = send_client_message(&(node->t_status), msg, node->client);
   }
 
@@ -305,6 +377,21 @@ void subscription_on_ack(const struct client_node* client, const struct sensor_n
 
   for( node = subscriptions_list; node != NULL; node = node->next ) {
     if( node->client == client && node->sensor == sensor ) {
+      extern q_agent_t server_q_agent;
+      extern bool q_learning_enabled;
+      
+      if (q_learning_enabled && node->q_action >= 0) {
+          float reward = 20.0 - (len / 100.0);  /* +20 for HIGH importance, -latency cost */
+          int next_rtt = 0;
+          int next_importance = 1;
+          
+          int rtt_state = (node->q_state >> 4) & 1;
+          int importance = (node->q_state >> 2) & 3;
+          int action = node->q_state & 3;
+          
+          q_agent_update(&server_q_agent, rtt_state, importance, action, reward, next_rtt, next_importance);
+          log_debug(l, "Q-Agent ACK reward: %.2f\n", reward);
+      }
       transport_on_received(&(node->t_status), &pkt);
     }
   }
@@ -313,10 +400,21 @@ void subscription_on_ack(const struct client_node* client, const struct sensor_n
 /* XXX: Ugly, should not modify client datastructure (client should be const) */
 void subscription_on_nack(struct client_node* client, const struct sensor_node* sensor)
 {
+  extern q_agent_t server_q_agent;
+  extern bool q_learning_enabled;
   struct subscription_node* node;
   for ( node = subscriptions_list; node != NULL; node = node->next ) {
     if ( node->client == client && node->sensor == sensor ) {
-        client->transport.skip_next = true;
+        if (q_learning_enabled && node->q_action >= 0) {
+          float reward = -200.0;  /* Harsh penalty for losing an update */
+          int rtt_state = (node->q_state >> 4) & 1;
+          int importance = (node->q_state >> 2) & 3;
+          int action = node->q_state & 3;
+          
+          q_agent_update(&server_q_agent, rtt_state, importance, action, reward, rtt_state, importance);
+          log_debug(l, "Q-Agent NACK penalty: -200\n");
+      }
+      client->transport.skip_next = true;
     }
   }
 }
