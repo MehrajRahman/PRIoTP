@@ -93,13 +93,32 @@ int sensor_alloc_data(enum SENSOR_TYPE type, struct void_data* data)
 
 /* Camera and unknown data has int in the beginning as data size
  * It was a bad idea, now data is a structure with an integer field */
+// int sensor_copy_data(enum SENSOR_TYPE type, struct void_data* to, const struct void_data* from)
+// {
+//   to->len = from->len;
+//   to->sensor_type = from->sensor_type;
+//   to->sid = from->sid;
+
+//   log_debug( l, "Tracing copy data. %s %d\n", to->sid , to->sensor_type );
+
+//   if( sensor_sizes[type] ) {
+//     memcpy( to->blob, from->blob, sensor_sizes[type] );
+//     if( from->len != sensor_sizes[type] ) to->len = sensor_sizes[type];
+//     return 0;
+//   }
+//   else {
+//     memcpy( to->blob, from->blob, from->len );
+//     return 0;
+//   }
+
+//   return -1;
+// }
 int sensor_copy_data(enum SENSOR_TYPE type, struct void_data* to, const struct void_data* from)
 {
   to->len = from->len;
-  to->sensor_type = from->sensor_type;
-  to->sid = from->sid;
-
-  log_debug( l, "Tracing copy data. %s %d\n", to->sid , to->sensor_type );
+  // Remove these lines - sensor_type and sid are NOT part of void_data
+  // to->sensor_type = from->sensor_type;  
+  // to->sid = from->sid;                   
 
   if( sensor_sizes[type] ) {
     memcpy( to->blob, from->blob, sensor_sizes[type] );

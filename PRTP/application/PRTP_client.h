@@ -11,4 +11,6 @@ enum CLIENT_OPERATION {
   CLIENT_OPERATION_SHUTDOWN = 6
 };
 
+
+
 #endif /* end of include guard: IOTCLIENT_RJLSHY5B */
