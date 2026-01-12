@@ -14,8 +14,7 @@ enum CLIENT_OPERATION {
   CLIENT_OPERATION_SHUTDOWN = 6
 };
 
-#define CHUNK_SIZE (1024)  // 100KB chunks
-/* In PRTP_client.h */
+#define CHUNK_SIZE (524)  // 1KB chunks - safe for message size limits (4KB after hex encoding)
 
 typedef struct {
     char filename[256];
@@ -24,8 +23,10 @@ typedef struct {
     uint32_t received_chunks;
     uint32_t file_size;
     
-    FILE* temp_fp;       // <-- NEW: Handle to write immediately
-    bool* received;      // Tracks which chunks we have
+    FILE* temp_fp;
+    unsigned char** chunks;  // Buffer for out-of-order chunks
+    size_t* chunk_sizes;     // Actual size of each chunk
+    bool* received;
     bool active;
 } file_transfer_t;
 

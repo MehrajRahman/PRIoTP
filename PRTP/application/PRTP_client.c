@@ -1168,7 +1168,7 @@ int send_video_chunked(int sd, const char* to_client_id, const char* video_filen
     
     printf("\n Sending: %s\n", clean_filename);
     printf("   Size: %.2f MB (%ld bytes)\n", file_size / (1024.0 * 1024.0), file_size);
-    printf("   Chunks: %u (100KB each)\n", total_chunks);
+    printf("   Chunks: %u (%dKB each)\n", total_chunks, CHUNK_SIZE/1024);
     printf("   To: %s\n\n", to_client_id);
     
     // Extract just the filename (remove path)
@@ -1181,24 +1181,23 @@ int send_video_chunked(int sd, const char* to_client_id, const char* video_filen
              "FILE_START:%s:%ld:%u", base_filename, file_size, total_chunks);
     send_chat_message(sd, to_client_id, start_msg);
     
-    usleep(50000); // 50ms delay for START to arrive first
+    usleep(300000); // 300ms delay for START
     
     // Send chunks
-    char* buffer = malloc(CHUNK_SIZE);
+    unsigned char* buffer = malloc(CHUNK_SIZE);
     for(uint32_t chunk = 0; chunk < total_chunks; chunk++) {
         size_t bytes_read = fread(buffer, 1, CHUNK_SIZE, fp);
         
-        // Encode chunk as base64 to safely send in text message
-        // For simplicity, we'll use hex encoding (2 chars per byte)
+        // Hex encode: 2 chars per byte
         char* hex_data = malloc(bytes_read * 2 + 1);
         for(size_t i = 0; i < bytes_read; i++) {
             sprintf(hex_data + i * 2, "%02x", (unsigned char)buffer[i]);
         }
         hex_data[bytes_read * 2] = '\0';
         
-        // Send chunk message: "FILE_CHUNK:<chunk_num>:<total>:<hex_data>"
-        char* chunk_msg = malloc(strlen(hex_data) + 100);
-        sprintf(chunk_msg, "FILE_CHUNK:%u:%u:%s", chunk, total_chunks, hex_data);
+        // Send: "FILE_CHUNK:<chunk>:<size>:<hex>"
+        char* chunk_msg = malloc(bytes_read * 2 + 200);
+        sprintf(chunk_msg, "FILE_CHUNK:%u:%zu:%s", chunk, bytes_read, hex_data);
         
         send_chat_message(sd, to_client_id, chunk_msg);
         
@@ -1206,15 +1205,14 @@ int send_video_chunked(int sd, const char* to_client_id, const char* video_filen
         free(chunk_msg);
         
         // Progress
-        if(chunk % 10 == 0 || chunk == total_chunks - 1) {
+        if(chunk % 5 == 0 || chunk == total_chunks - 1) {
             printf("\r   Progress: %u/%u chunks (%.1f%%)   ", 
                    chunk + 1, total_chunks, 
                    (chunk + 1) * 100.0 / total_chunks);
             fflush(stdout);
         }
         
-        // Small delay to avoid overwhelming the network
-        usleep(50000);  // 5ms between chunks
+        usleep(100000);  // 100ms between chunks
     }
     
     printf("\n✓ Transfer complete!\n");
@@ -1237,14 +1235,20 @@ void on_file_transfer_message(struct PRTP_packet* msg) {
         if(sscanf(text, "FILE_START:%255[^:]:%u:%u", 
                   filename, &file_size, &total_chunks) == 3) {
             
-            // Cleanup previous transfer if it got stuck
+            // Cleanup previous
             if(active_transfer.active) {
-                printf("\n⚠️  Warning: New transfer started, closing previous\n");
                 if(active_transfer.temp_fp) fclose(active_transfer.temp_fp);
                 if(active_transfer.received) free(active_transfer.received);
+                if(active_transfer.chunk_sizes) free(active_transfer.chunk_sizes);
+                if(active_transfer.chunks) {
+                    for(uint32_t i = 0; i < active_transfer.total_chunks; i++) {
+                        if(active_transfer.chunks[i]) free(active_transfer.chunks[i]);
+                    }
+                    free(active_transfer.chunks);
+                }
             }
             
-            // Init new transfer
+            // Init
             memset(&active_transfer, 0, sizeof(active_transfer));
             strncpy(active_transfer.filename, filename, sizeof(active_transfer.filename) - 1);
             strncpy(active_transfer.from_user, msg->data.chat.from_client_id, 
@@ -1253,23 +1257,21 @@ void on_file_transfer_message(struct PRTP_packet* msg) {
             active_transfer.file_size = file_size;
             active_transfer.total_chunks = total_chunks;
             active_transfer.received = calloc(total_chunks, sizeof(bool));
-            active_transfer.active = true;
+            active_transfer.chunks = calloc(total_chunks, sizeof(unsigned char*));
+            active_transfer.chunk_sizes = calloc(total_chunks, sizeof(size_t));
             
-            // Open file IMMEDIATELY for writing
             char output_filename[300];
             snprintf(output_filename, sizeof(output_filename), "received_%s", filename);
-            active_transfer.temp_fp = fopen(output_filename, "r+b"); // Try open existing
-            if(!active_transfer.temp_fp) {
-                active_transfer.temp_fp = fopen(output_filename, "wb"); // Create new
-            }
+            active_transfer.temp_fp = fopen(output_filename, "wb");
             
             if(!active_transfer.temp_fp) {
-                printf("✗ Critical Error: Cannot create file on disk!\n");
+                printf("✗ Error: Cannot create file!\n");
                 active_transfer.active = false;
                 return;
             }
-
-            printf("\n Receiving file: %s (Streaming to disk)\n", filename);
+            
+            active_transfer.active = true;
+            printf("\n Receiving: %s\n", filename);
             printf("   Size: %.2f MB | Chunks: %u\n\n", file_size / (1024.0 * 1024.0), total_chunks);
         }
         return;
@@ -1277,61 +1279,82 @@ void on_file_transfer_message(struct PRTP_packet* msg) {
     
     // --- 2. Handle FILE_CHUNK ---
     if(strncmp(text, "FILE_CHUNK:", 11) == 0) {
-        if(!active_transfer.active || !active_transfer.temp_fp) return;
+        printf("[DEBUG] Got FILE_CHUNK message\n");
         
-        uint32_t chunk_num, total_chunks;
-        const char* hex_data_start = strchr(text + 11, ':');
-        if(!hex_data_start) return;
-        hex_data_start = strchr(hex_data_start + 1, ':');
-        if(!hex_data_start) return;
-        hex_data_start++; // Point to data
-        
-        if(sscanf(text, "FILE_CHUNK:%u:%u:", &chunk_num, &total_chunks) != 2) return;
-        
-        // Ignore duplicates
-        if(chunk_num >= active_transfer.total_chunks || active_transfer.received[chunk_num]) return;
-
-        // Decode Hex
-        size_t hex_len = strlen(hex_data_start);
-        size_t data_len = hex_len / 2;
-        unsigned char* data = malloc(data_len);
-        
-        for(size_t i = 0; i < data_len; i++) {
-            sscanf(hex_data_start + i * 2, "%2hhx", &data[i]);
+        if(!active_transfer.active) {
+            printf("[DEBUG] Transfer not active!\n");
+            return;
         }
         
-        // --- CRITICAL FIX: Write to Disk Immediately ---
-        // Calculate offset: Chunk_ID * Chunk_Size
-        long offset = (long)chunk_num * CHUNK_SIZE;
+        uint32_t chunk_num;
+        size_t chunk_size;
+        const char* hex_start = text + 11;
+        const char* colon1 = strchr(hex_start, ':');
+        if(!colon1) {
+            printf("[DEBUG] No first colon\n");
+            return;
+        }
+        const char* colon2 = strchr(colon1 + 1, ':');
+        if(!colon2) {
+            printf("[DEBUG] No second colon\n");
+            return;
+        }
         
-        fseek(active_transfer.temp_fp, offset, SEEK_SET);
-        fwrite(data, 1, data_len, active_transfer.temp_fp);
-        // -----------------------------------------------
-
-        free(data); // Clear RAM immediately
+        if(sscanf(text, "FILE_CHUNK:%u:%zu:", &chunk_num, &chunk_size) != 2) {
+            printf("[DEBUG] sscanf failed\n");
+            return;
+        }
         
+        printf("[DEBUG] Chunk %u, size %zu\n", chunk_num, chunk_size);
+        
+        if(chunk_num >= active_transfer.total_chunks || active_transfer.received[chunk_num]) {
+            printf("[DEBUG] Chunk out of range or duplicate\n");
+            return;
+        }
+        
+        const char* hex_data = colon2 + 1;
+        unsigned char* data = malloc(chunk_size);
+        
+        // Decode hex
+        for(size_t i = 0; i < chunk_size; i++) {
+            unsigned int byte;
+            sscanf(hex_data + i * 2, "%2x", &byte);
+            data[i] = (unsigned char)byte;
+        }
+        
+        printf("[DEBUG] Decoded %zu bytes\n", chunk_size);
+        
+        // Store chunk in memory with its size
+        active_transfer.chunks[chunk_num] = data;
+        active_transfer.chunk_sizes[chunk_num] = chunk_size;
         active_transfer.received[chunk_num] = true;
         active_transfer.received_chunks++;
         
-        // Print Progress (only occasionally)
-        if(active_transfer.received_chunks % 10 == 0 || 
+        // Progress
+        if(active_transfer.received_chunks % 5 == 0 || 
            active_transfer.received_chunks == active_transfer.total_chunks) {
-            printf("\r   Receiving: %u/%u (%.1f%%)   ", 
+            printf("\r   Progress: %u/%u (%.1f%%)   ", 
                    active_transfer.received_chunks,
                    active_transfer.total_chunks,
                    active_transfer.received_chunks * 100.0 / active_transfer.total_chunks);
             fflush(stdout);
         }
         
-        // Completion Check
+        // Write all chunks in order when complete
         if(active_transfer.received_chunks == active_transfer.total_chunks) {
-            printf("\n✓ Transfer complete!\n");
+            printf("\n[DEBUG] Writing %u chunks to file...\n", active_transfer.total_chunks);
+            for(uint32_t i = 0; i < active_transfer.total_chunks; i++) {
+                size_t written = fwrite(active_transfer.chunks[i], 1, active_transfer.chunk_sizes[i], active_transfer.temp_fp);
+                printf("[DEBUG] Chunk %u: wrote %zu bytes (expected %zu)\n", i, written, active_transfer.chunk_sizes[i]);
+                free(active_transfer.chunks[i]);
+            }
             fclose(active_transfer.temp_fp);
-            active_transfer.temp_fp = NULL;
+            free(active_transfer.chunks);
+            free(active_transfer.chunk_sizes);
+            free(active_transfer.received);
             
-            if(active_transfer.received) free(active_transfer.received);
+            printf("\n✓ Transfer complete: %s\n", active_transfer.filename);
             memset(&active_transfer, 0, sizeof(active_transfer));
-            
             printf("You> ");
             fflush(stdout);
         }
