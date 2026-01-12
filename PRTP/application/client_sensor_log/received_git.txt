@@ -1,2 +1,1 @@
 
-git remote set-url origin https://rahmanmehraj182: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@github.com/rahmanmehraj182/Edukonnect.git
