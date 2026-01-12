@@ -136,7 +136,11 @@ enum IOTMSG_TYPE  {
   UPDATE_ACK,
   UPDATE_NACK,
   KEEP_ALIVE,
-  UNSUBSCRIBE
+  UNSUBSCRIBE,
+  CHAT_MESSAGE = 10,
+  CHAT_ROOM_JOIN = 11,
+  CHAT_ROOM_LEAVE = 12,
+  CHAT_USER_LIST = 13
 };
 
 /* Nodes are for lists in iotmsgs */
@@ -165,6 +169,13 @@ struct update_data {
   uint32_t sensor_type;
   struct void_data blob;
 };
+/* Chat message structure */
+struct chat_message_data {
+  char* from_client_id;
+  char* to_client_id;    // NULL for broadcast
+  char* message_text;
+  uint32_t timestamp;
+};
 
 /* Base PRTP_packet structure with proper bitfield packing */
 struct PRTP_packet {
@@ -191,6 +202,8 @@ struct PRTP_packet {
     struct iotmsg_node* blob;      // For LIST_RESPONSE, SUBSCRIBE, SUBSCRIBE_ACK
     char* sid;                      // For UPDATE_ACK, UPDATE_NACK
     struct update_data update;      // For UPDATE messages
+    struct chat_message_data chat;  // Add this
+
   } data;
 };
 

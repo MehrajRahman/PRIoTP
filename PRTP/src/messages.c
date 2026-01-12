@@ -27,6 +27,7 @@ int send_iotmsg(int sd, const struct PRTP_packet* msg) {
   len = serialize_iotmsg(msg, buf, BUFSIZE);
   return send(sd, buf, len, 0);
 }
+/* Fixed create_iotmsg() function - replace in messages.c */
 
 struct PRTP_packet* create_iotmsg(enum IOTMSG_TYPE type)
 {
@@ -34,30 +35,18 @@ struct PRTP_packet* create_iotmsg(enum IOTMSG_TYPE type)
 
   switch(type) {
   case LIST:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case LIST_RESPONSE:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case SUBSCRIBE:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case SUBSCRIBE_ACK:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case UPDATE:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case UPDATE_ACK:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case UPDATE_NACK:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case KEEP_ALIVE:
-    result = xalloc(sizeof(struct PRTP_packet));
-    break;
   case UNSUBSCRIBE:
+  case CHAT_MESSAGE:
+  case CHAT_ROOM_JOIN:
+  case CHAT_ROOM_LEAVE:
+  case CHAT_USER_LIST:
     result = xalloc(sizeof(struct PRTP_packet));
     break;
   }
@@ -65,10 +54,17 @@ struct PRTP_packet* create_iotmsg(enum IOTMSG_TYPE type)
   if( !result ) return NULL;
 
   result->type = type;
+  
+  /* Initialize chat message fields to NULL */
+  if( type == CHAT_MESSAGE || type == CHAT_ROOM_JOIN || type == CHAT_ROOM_LEAVE ) {
+    result->data.chat.from_client_id = NULL;
+    result->data.chat.to_client_id = NULL;
+    result->data.chat.message_text = NULL;
+    result->data.chat.timestamp = 0;
+  }
 
   return result;
 }
-
 
 // void free_iotsids(struct PRTP_packet* msg)
 // {
@@ -105,6 +101,35 @@ struct PRTP_packet* create_iotmsg(enum IOTMSG_TYPE type)
 // }
 
 
+// void free_iotsids(struct PRTP_packet* msg)
+// {
+//   struct iotmsg_node* sid, *next;
+
+//   switch(msg->type) {
+//   case LIST_RESPONSE:
+//   case SUBSCRIBE:
+//   case SUBSCRIBE_ACK:
+//     for( sid = msg->data.blob; sid != NULL; sid = next ) {
+//       next = sid->next;
+//       free(sid->id);
+//       free(sid);
+//     }
+//     break;
+//   case UPDATE:
+//     free(msg->data.update.sid);
+//     free(msg->data.update.blob.blob);
+//     break;
+//   case UPDATE_ACK:
+//   case UPDATE_NACK:
+//     free(msg->data.sid);
+//     break;
+//   default:
+//     break;
+//   }
+// }
+/* Update free_iotsids() in messages.c to handle chat messages */
+/* In messages.c - Replace the free_iotsids() function */
+
 void free_iotsids(struct PRTP_packet* msg)
 {
   struct iotmsg_node* sid, *next;
@@ -113,25 +138,35 @@ void free_iotsids(struct PRTP_packet* msg)
   case LIST_RESPONSE:
   case SUBSCRIBE:
   case SUBSCRIBE_ACK:
+  case CHAT_USER_LIST:  /* Add CHAT_USER_LIST here - it uses data.blob */
     for( sid = msg->data.blob; sid != NULL; sid = next ) {
       next = sid->next;
-      free(sid->id);
+      if(sid->id) free(sid->id);  /* Add null check */
       free(sid);
     }
     break;
+    
   case UPDATE:
-    free(msg->data.update.sid);
-    free(msg->data.update.blob.blob);
+    if(msg->data.update.sid) free(msg->data.update.sid);
+    if(msg->data.update.blob.blob) free(msg->data.update.blob.blob);
     break;
+    
   case UPDATE_ACK:
   case UPDATE_NACK:
-    free(msg->data.sid);
+    if(msg->data.sid) free(msg->data.sid);
     break;
+    
+  case CHAT_MESSAGE:
+  case CHAT_ROOM_JOIN:  /* Add CHAT_ROOM_JOIN */
+    if(msg->data.chat.from_client_id) free(msg->data.chat.from_client_id);
+    if(msg->data.chat.to_client_id) free(msg->data.chat.to_client_id);
+    if(msg->data.chat.message_text) free(msg->data.chat.message_text);
+    break;
+    
   default:
     break;
   }
 }
-
 /* Free PRTP_packet structure. */
 void free_iotmsg(struct PRTP_packet* msg)
 {
@@ -201,8 +236,7 @@ int iotmsg_set_sid(struct PRTP_packet* msg, const char* id)
   }
   return ret;
 }
-
-
+/* In messages.c - Replace the iotmsg_add_sid() function */
 
 struct iotmsg_node* iotmsg_add_sid(struct PRTP_packet* msg, const char* id)
 {
@@ -213,33 +247,38 @@ struct iotmsg_node* iotmsg_add_sid(struct PRTP_packet* msg, const char* id)
 
   switch(msg->type) {
   case LIST_RESPONSE:
-    list_msg =  msg;
+    list_msg = msg;
     node = xalloc(sizeof(struct iotmsg_list_node));
     node->id = xalloc(strlen(id) + 1);
     strcpy(node->id, id);
-
     node->next = list_msg->data.blob;
     list_msg->data.blob = node;
     break;
 
   case SUBSCRIBE:
-    sub_msg =  msg;
+    sub_msg = msg;
     node = xalloc(sizeof(struct iotmsg_subscribe_node));
     node->id = xalloc(strlen(id) + 1);
     strcpy(node->id, id);
-
     node->next = sub_msg->data.blob;
     sub_msg->data.blob = node;
     break;
 
   case SUBSCRIBE_ACK:
-    sack_msg =  msg;
+    sack_msg = msg;
     node = xalloc(sizeof(struct iotmsg_subscribe_ack_node));
     node->id = xalloc(strlen(id) + 1);
     strcpy(node->id, id);
-
     node->next = sack_msg->data.blob;
     sack_msg->data.blob = node;
+    break;
+
+  case CHAT_USER_LIST:  /* ADD THIS CASE */
+    node = xalloc(sizeof(struct iotmsg_list_node));
+    node->id = xalloc(strlen(id) + 1);
+    strcpy(node->id, id);
+    node->next = msg->data.blob;
+    msg->data.blob = node;
     break;
   }
 

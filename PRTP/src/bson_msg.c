@@ -11,7 +11,8 @@
 #include "utils.h"
 
 static struct logger* l = NULL;
-
+/* Forward declarations */
+int serialize_chat_message(const struct PRTP_packet* msg, char* buf);
 void init_bson_msg()
 {
   l = init_logger(stdout, stderr, stderr, "BSON Message");
@@ -23,43 +24,92 @@ void shutdown_bson_msg()
 }
 
 /* Bson_iotmsg is a set of functions to extract the PRTP_packet meaning from bson values */
-int bson_iotmsg_string(struct PRTP_packet** msg, char* parent, char* key, char* value)
-{
-  int ret = -1;
+// int bson_iotmsg_string(struct PRTP_packet** msg, char* parent, char* key, char* value)
+// {
+//   int ret = -1;
 
-  if( !*msg ) {
-    log_error(l, "BSON parser: type field must be first.\n");
-    return ret;
-  }
+//   if( !*msg ) {
+//     log_error(l, "BSON parser: type field must be first.\n");
+//     return ret;
+//   }
 
-  if(parent) {
-    /* Make sure we are in "sids" array:) */
-    if( strcmp(parent, "sids") == 0 ) {
-      if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
-    }
+//   if(parent) {
+//     /* Make sure we are in "sids" array:) */
+//     if( strcmp(parent, "sids") == 0 ) {
+//       if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+//     }
 
-    if( strcmp(parent, "data") == 0 )
-        if( strcmp(key, "sid") == 0 ){
-           log_error(l, "Inside sid parsing\n");
-          ret = iotmsg_set_sid(*msg, value);
-        }
+//     if( strcmp(parent, "data") == 0 )
+//         if( strcmp(key, "sid") == 0 ){
+//            log_error(l, "Inside sid parsing\n");
+//           ret = iotmsg_set_sid(*msg, value);
+//         }
 
-    /* Empty parent and "sid" key means we are in
-     * sids array and in one of the objects */
-    if( strcmp(parent, "") == 0 )
-      if( strcmp(key, "sid") == 0 )
-        if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
-  }
-  /* No parent means we are in the top-level of the message */
-  else {
-    /* Sid here should be the one in update message */
-    if( strcmp(key, "sid") == 0 )
-      ret = iotmsg_set_sid(*msg, value);
-  }
+//     /* Empty parent and "sid" key means we are in
+//      * sids array and in one of the objects */
+//     if( strcmp(parent, "") == 0 )
+//       if( strcmp(key, "sid") == 0 )
+//         if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+//   }
+//   /* No parent means we are in the top-level of the message */
+//   else {
+//     /* Sid here should be the one in update message */
+//     if( strcmp(key, "sid") == 0 )
+//       ret = iotmsg_set_sid(*msg, value);
+//   }
 
-  return ret;
-}
+//   return ret;
+// }
+// int bson_iotmsg_string(struct PRTP_packet** msg, char* parent, char* key, char* value)
+// {
+//   int ret = -1;
 
+//   if( !*msg ) {
+//     log_error(l, "BSON parser: type field must be first.\n");
+//     return ret;
+//   }
+
+//   /* Handle CHAT_MESSAGE type */
+//   if( (*msg)->type == CHAT_MESSAGE ) {
+//     if(parent && strcmp(parent, "data") == 0) {
+//       if( strcmp(key, "from") == 0 ) {
+//         (*msg)->data.chat.from_client_id = strdup(value);
+//         return 0;
+//       }
+//       else if( strcmp(key, "to") == 0 ) {
+//         (*msg)->data.chat.to_client_id = strdup(value);
+//         return 0;
+//       }
+//       else if( strcmp(key, "message") == 0 ) {
+//         (*msg)->data.chat.message_text = strdup(value);
+//         return 0;
+//       }
+//     }
+//   }
+
+//   /* Original code continues below... */
+//   if(parent) {
+//     if( strcmp(parent, "sids") == 0 ) {
+//       if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+//     }
+
+//     if( strcmp(parent, "data") == 0 )
+//         if( strcmp(key, "sid") == 0 ){
+//            log_error(l, "Inside sid parsing\n");
+//           ret = iotmsg_set_sid(*msg, value);
+//         }
+
+//     if( strcmp(parent, "") == 0 )
+//       if( strcmp(key, "sid") == 0 )
+//         if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+//   }
+//   else {
+//     if( strcmp(key, "sid") == 0 )
+//       ret = iotmsg_set_sid(*msg, value);
+//   }
+
+//   return ret;
+// }
 int bson_iotmsg_boolean(struct PRTP_packet** msg, char* parent, char* key, bool value)
 {
   int ret = -1;
@@ -138,78 +188,87 @@ int bson_iotmsg_double(struct PRTP_packet** msg, char* parent, char* key, double
 
   return ret;
 }
+/* Fixed bson_iotmsg_string() function - replace in bson_msg.c */
+/* In bson_msg.c - Update bson_iotmsg_string() to handle CHAT_USER_LIST */
 
-// int bson_iotmsg_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t value)
-// {
-//   struct void_data val;
-//   val.len = sizeof(int32_t);
-//   val.blob = &value;
+int bson_iotmsg_string(struct PRTP_packet** msg, char* parent, char* key, char* value)
+{
+  int ret = -1;
 
-//   if (strncmp(key, "type", 4) == 0) {
-//     if(*msg) {
-//       log_error(l, "BSON parser: PRTP_packet type field appears twice!\n");
-//       return -1;
-//     }
-//     else {
-//       *msg = create_iotmsg(value);
-//       return 0;
-//     }
-//   }
+  if( !*msg ) {
+    log_error(l, "BSON parser: type field must be first.\n");
+    return ret;
+  }
 
-//   if( !*msg ) {
-//     log_error(l, "BSON parser: type field must be first.\n");
-//     return -1;
-//   }
+  /* Handle CHAT_MESSAGE and CHAT_ROOM_JOIN types */
+  if( (*msg)->type == CHAT_MESSAGE || (*msg)->type == CHAT_ROOM_JOIN ) {
+    if(parent && strcmp(parent, "data") == 0) {
+      if( strcmp(key, "from") == 0 ) {
+        (*msg)->data.chat.from_client_id = strdup(value);
+        return 0;
+      }
+      else if( strcmp(key, "to") == 0 ) {
+        (*msg)->data.chat.to_client_id = strdup(value);
+        return 0;
+      }
+      else if( strcmp(key, "message") == 0 ) {
+        (*msg)->data.chat.message_text = strdup(value);
+        return 0;
+      }
+    }
+  }
 
-//   if (strncmp(key, "seq_no", 6) == 0)
-//     return iotmsg_set_seq(*msg, value);
+  /* Handle UPDATE messages */
+  if( (*msg)->type == UPDATE ) {
+    if(parent && strcmp(parent, "data") == 0) {
+      if( strcmp(key, "sid") == 0 ) {
+        log_error(l, "Inside sid parsing\n");
+        ret = iotmsg_set_sid(*msg, value);
+        return ret;
+      }
+    }
+  }
 
-//   if (strncmp(key, "timestamp", 9) == 0)
-//     return iotmsg_set_timestamp(*msg, value);
+  /* Handle CHAT_USER_LIST - it uses "users" array like "sids" */
+  if( (*msg)->type == CHAT_USER_LIST ) {
+    if(parent) {
+      if( strcmp(parent, "users") == 0 ) {
+        if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+        return ret;
+      }
+    }
+  }
 
-//   if (strncmp(key, "frag_no", 7) == 0) {
-//     return iotmsg_set_frag_no(*msg, value);
-//   }
-//   if (strncmp(key, "frag_total", 10) == 0) {
-//     return iotmsg_set_frag_total(*msg, value);
-//   }
+  /* Handle other message types with sid fields */
+  if(parent) {
+    if( strcmp(parent, "sids") == 0 ) {
+      if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+    }
 
-//   if(parent) {
-//     /* Empty parent and "sid" key means we are in
-//      * sids array and in one of the objects */
-//     if( strcmp(parent, "") == 0 )
-//       if( strcmp(key,  "status") == 0 )
-//         return iotmsg_set_status(*msg, value);
+    if( strcmp(parent, "") == 0 ) {
+      if( strcmp(key, "sid") == 0 ) {
+        if( iotmsg_add_sid(*msg, value) != NULL ) ret = 0;
+      }
+    }
+  }
+  else {
+    /* No parent means top-level */
+    if( strcmp(key, "sid") == 0 ) {
+      ret = iotmsg_set_sid(*msg, value);
+    }
+  }
 
-//     if( strcmp(parent, "data") == 0 ) {
+  return ret;
+}
+/* Fixed bson_iotmsg_int32() function - replace in bson_msg.c */
 
-//       if (strcmp(key, "sensor_type") == 0) {
-//        log_error(l, "Inside sensor type parsing.\n");
-//         iotmsg_alloc_data(*msg);
-//        int ret = iotmsg_set_sensor_type(*msg, value);
-//        log_error(l, "Inside sensor type parsing end.\n");
-//         return ret;
-//       }
-
-//       if( strcmp(key, "temp1") == 0 ) {
-//        log_error(l, "Inside temp1 parsing.\n");
-//         return iotmsg_copy_data(*msg, 0, &val);
-//       }
-
-//       if( strcmp(key, "temp2") == 0 ) {
-//         return iotmsg_copy_data(*msg, 1, &val);
-//       }
-//     }
-//   }
-
-//   return -1;
-// }
 int bson_iotmsg_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t value)
 {
   struct void_data val;
   val.len = sizeof(int32_t);
   val.blob = &value;
 
+  /* Handle type field first */
   if (strncmp(key, "type", 4) == 0) {
     if(*msg) {
       log_error(l, "BSON parser: PRTP_packet type field appears twice!\n");
@@ -226,6 +285,16 @@ int bson_iotmsg_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t
     return -1;
   }
 
+  /* Handle CHAT_MESSAGE and CHAT_ROOM_JOIN timestamp */
+  if( ((*msg)->type == CHAT_MESSAGE || (*msg)->type == CHAT_ROOM_JOIN) && 
+      parent && strcmp(parent, "data") == 0 ) {
+    if( strcmp(key, "timestamp") == 0 ) {
+      (*msg)->data.chat.timestamp = value;
+      return 0;
+    }
+  }
+
+  /* Handle common fields */
   if (strncmp(key, "seq_no", 6) == 0)
     return iotmsg_set_seq(*msg, value);
 
@@ -235,19 +304,20 @@ int bson_iotmsg_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t
   if (strncmp(key, "frag_no", 7) == 0) {
     return iotmsg_set_frag_no(*msg, value);
   }
+  
   if (strncmp(key, "frag_total", 10) == 0) {
     return iotmsg_set_frag_total(*msg, value);
   }
 
   if(parent) {
-    if( strcmp(parent, "") == 0 )
-      if( strcmp(key,  "status") == 0 )
+    if( strcmp(parent, "") == 0 ) {
+      if( strcmp(key, "status") == 0 )
         return iotmsg_set_status(*msg, value);
+    }
 
     if( strcmp(parent, "data") == 0 ) {
       if (strcmp(key, "sensor_type") == 0) {
         log_error(l, "Inside sensor type parsing.\n");
-        /* Use the setter function which accesses msg->data.update.sensor_type */
         int ret = iotmsg_set_sensor_type(*msg, value);
         if (ret == 0) {
           iotmsg_alloc_data(*msg);
@@ -269,7 +339,6 @@ int bson_iotmsg_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t
 
   return -1;
 }
-
 int bson_iotmsg_binary(struct PRTP_packet** msg, char* parent, char* key, void* data)
 {
   int ret = -1;
@@ -349,7 +418,42 @@ int serialize_unsubscribe(const struct PRTP_packet* msg, char* buf)
 
   return doc_len;
 }
+int serialize_chat_user_list(const struct PRTP_packet* msg, char* buf)
+{
+  uint32_t doc_len = 0, in_doc_len = 0, ow_len;
+  char* cur = buf;
+  char* tmp;
+  struct iotmsg_node* node;
 
+  ow_len = write_bson_doclen( cur, 0 ); MOVE_CUR
+  ow_len = write_bson_int( cur, "type", CHAT_USER_LIST ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "end_marker", msg->end_marker ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "reliable", msg->reliable ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "fragmented", msg->fragmented ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "utilize_timestamp", msg->utilize_timestamp ); MOVE_CUR
+  ow_len = write_bson_int( cur, "seq_no", generate_random_sequence_no() ); MOVE_CUR
+
+  if(msg->utilize_timestamp || msg->reliable) {
+    ow_len = write_bson_int( cur, "timestamp", generate_ntp_timestamp() ); MOVE_CUR
+  }
+
+  ow_len = write_bson_array( cur, "users" ); MOVE_CUR
+  tmp = cur;
+  in_doc_len = 0;
+  ow_len = write_bson_doclen( cur, 0 ); MOVE_CUR_IN
+
+  for( node = msg->data.blob; node != NULL; node = node->next )
+  {
+    ow_len = write_bson_string( cur, "", node->id ); MOVE_CUR_IN
+  }
+  WRITE_ZERO_CUR_IN
+  write_bson_doclen( tmp, in_doc_len );
+
+  WRITE_ZERO_CUR
+  write_bson_doclen( buf, doc_len );
+
+  return doc_len;
+}
 int serialize_list_response(const struct PRTP_packet* msg, char* buf)
 {
   /* Can be used for itoa and writing array according to BSON spec
@@ -763,6 +867,7 @@ int serialize_keep_alive(const struct PRTP_packet* msg, char* buf)
 /* From struct PRTP_packet to BSON buf
  * maxlen - the size of allocated buffer
  */
+/* Fixed serialize_iotmsg function - replace lines 883-916 in bson_msg.c */
 int serialize_iotmsg(const struct PRTP_packet* msg, char* buf, uint32_t maxlen)
 {
   switch(msg->type) {
@@ -801,6 +906,207 @@ int serialize_iotmsg(const struct PRTP_packet* msg, char* buf, uint32_t maxlen)
   case UNSUBSCRIBE:
     if( serialize_unsubscribe(msg, NULL) > maxlen ) return -1;
     else return serialize_unsubscribe(msg, buf);
+
+  case CHAT_MESSAGE:
+    if( serialize_chat_message(msg, NULL) > maxlen ) return -1;
+    else return serialize_chat_message(msg, buf);
+
+  case CHAT_ROOM_JOIN:
+    if( serialize_chat_room_join(msg, NULL) > maxlen ) return -1;
+    else return serialize_chat_room_join(msg, buf);
+
+  case CHAT_USER_LIST:
+    if( serialize_chat_user_list(msg, NULL) > maxlen ) return -1;
+    else return serialize_chat_user_list(msg, buf);
+
+  default:
+    return -1;
   }
+
   return -1;
 }
+
+
+
+
+
+
+
+
+
+
+
+/* Parse chat message from BSON */
+int bson_iotmsg_chat_string(struct PRTP_packet** msg, char* parent, char* key, char* value)
+{
+  int ret = -1;
+
+  if( !*msg ) {
+    log_error(l, "BSON parser: type field must be first.\n");
+    return ret;
+  }
+
+  if( (*msg)->type != CHAT_MESSAGE ) return ret;
+
+  if(parent && strcmp(parent, "data") == 0) {
+    if( strcmp(key, "from") == 0 ) {
+      (*msg)->data.chat.from_client_id = strdup(value);
+      ret = 0;
+    }
+    else if( strcmp(key, "to") == 0 ) {
+      (*msg)->data.chat.to_client_id = strdup(value);
+      ret = 0;
+    }
+    else if( strcmp(key, "message") == 0 ) {
+      (*msg)->data.chat.message_text = strdup(value);
+      ret = 0;
+    }
+  }
+
+  return ret;
+}
+
+int bson_iotmsg_chat_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t value)
+{
+  int ret = -1;
+
+  if( !*msg ) return ret;
+  if( (*msg)->type != CHAT_MESSAGE ) return ret;
+
+  if(parent && strcmp(parent, "data") == 0) {
+    if( strcmp(key, "timestamp") == 0 ) {
+      (*msg)->data.chat.timestamp = value;
+      ret = 0;
+    }
+  }
+
+  return ret;
+}
+
+/* Serialize chat message to BSON */
+int serialize_chat_message(const struct PRTP_packet* msg, char* buf)
+{
+  uint32_t doc_len = 0, in_doc_len = 0, ow_len;
+  char* cur = buf;
+  char* tmp;
+
+  ow_len = write_bson_doclen( cur, 0 ); MOVE_CUR
+  ow_len = write_bson_int( cur, "type", CHAT_MESSAGE ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "end_marker", msg->end_marker ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "reliable", msg->reliable ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "fragmented", msg->fragmented ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "utilize_timestamp", msg->utilize_timestamp ); MOVE_CUR
+  ow_len = write_bson_int( cur, "seq_no", generate_random_sequence_no() ); MOVE_CUR
+
+  if(msg->utilize_timestamp || msg->reliable) {
+    ow_len = write_bson_int( cur, "timestamp", generate_ntp_timestamp() ); MOVE_CUR
+  }
+
+  /* Write chat data */
+  in_doc_len = 0;
+  ow_len = write_bson_object( cur, "data" ); MOVE_CUR
+  tmp = cur;
+  ow_len = write_bson_doclen( cur, 0 ); MOVE_CUR_IN
+  
+  ow_len = write_bson_string( cur, "from", msg->data.chat.from_client_id ); MOVE_CUR_IN
+  
+  if(msg->data.chat.to_client_id) {
+    ow_len = write_bson_string( cur, "to", msg->data.chat.to_client_id ); MOVE_CUR_IN
+  }
+  
+  ow_len = write_bson_string( cur, "message", msg->data.chat.message_text ); MOVE_CUR_IN
+  ow_len = write_bson_int( cur, "timestamp", msg->data.chat.timestamp ); MOVE_CUR_IN
+
+  WRITE_ZERO_CUR_IN
+  write_bson_doclen( tmp, in_doc_len );
+
+  WRITE_ZERO_CUR
+  write_bson_doclen( buf, doc_len );
+
+  return doc_len;
+}
+
+int serialize_chat_room_join(const struct PRTP_packet* msg, char* buf)
+{
+  // Same as serialize_chat_message but with CHAT_ROOM_JOIN type
+  uint32_t doc_len = 0, in_doc_len = 0, ow_len;
+  char* cur = buf;
+  char* tmp;
+
+  ow_len = write_bson_doclen( cur, 0 ); MOVE_CUR
+  ow_len = write_bson_int( cur, "type", CHAT_ROOM_JOIN ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "end_marker", msg->end_marker ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "reliable", msg->reliable ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "fragmented", msg->fragmented ); MOVE_CUR
+  ow_len = write_bson_boolean( cur, "utilize_timestamp", msg->utilize_timestamp ); MOVE_CUR
+  ow_len = write_bson_int( cur, "seq_no", generate_random_sequence_no() ); MOVE_CUR
+
+  if(msg->utilize_timestamp || msg->reliable) {
+    ow_len = write_bson_int( cur, "timestamp", generate_ntp_timestamp() ); MOVE_CUR
+  }
+
+  in_doc_len = 0;
+  ow_len = write_bson_object( cur, "data" ); MOVE_CUR
+  tmp = cur;
+  ow_len = write_bson_doclen( cur, 0 ); MOVE_CUR_IN
+  
+  ow_len = write_bson_string( cur, "from", msg->data.chat.from_client_id ); MOVE_CUR_IN
+  ow_len = write_bson_int( cur, "timestamp", msg->data.chat.timestamp ); MOVE_CUR_IN
+
+  WRITE_ZERO_CUR_IN
+  write_bson_doclen( tmp, in_doc_len );
+
+  WRITE_ZERO_CUR
+  write_bson_doclen( buf, doc_len );
+
+  return doc_len;
+}
+/* Update serialize_iotmsg() to handle CHAT_MESSAGE */
+// int serialize_iotmsg(const struct PRTP_packet* msg, char* buf, uint32_t maxlen)
+// {
+//   switch(msg->type) {
+//   case LIST:
+//     if( serialize_list(msg, NULL) > maxlen ) return -1;
+//     else return serialize_list(msg, buf);
+
+//   /* ... existing cases ... */
+
+//   case CHAT_MESSAGE:
+//     if( serialize_chat_message(msg, NULL) > maxlen ) return -1;
+//     else return serialize_chat_message(msg, buf);
+
+//   /* ... rest of cases ... */
+//   }
+//   return -1;
+// }
+
+/* Update bson_iotmsg_string() to handle chat messages */
+// int bson_iotmsg_string(struct PRTP_packet** msg, char* parent, char* key, char* value)
+// {
+//   int ret = -1;
+
+//   if( !*msg ) {
+//     log_error(l, "BSON parser: type field must be first.\n");
+//     return ret;
+//   }
+
+//   /* Existing handlers for other message types... */
+
+//   /* Handle chat message strings */
+//   if( (*msg)->type == CHAT_MESSAGE ) {
+//     return bson_iotmsg_chat_string(msg, parent, key, value);
+//   }
+
+//   return ret;
+// }
+
+/* Update bson_iotmsg_int32() similarly */
+// int bson_iotmsg_int32(struct PRTP_packet** msg, char* parent, char* key, int32_t value)
+// {
+//   /* ... existing code ... */
+
+//   /* Handle chat message integers */
+  
+
+//   return -1;
+// }

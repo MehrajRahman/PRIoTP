@@ -95,8 +95,15 @@ PRTP_client-PRTP_client.o: PRTP_client.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
  /usr/include/x86_64-linux-gnu/bits/signal_ext.h /usr/include/assert.h \
- PRTP_client.h ../src/utils.h /usr/include/netinet/in.h \
+ /usr/include/time.h /usr/include/x86_64-linux-gnu/bits/time.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
+ PRTP_client.h /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
+ /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
+ /usr/include/x86_64-linux-gnu/bits/stdint-least.h ../src/messages.h \
+ ../src/void_data.h ../src/utils.h /usr/include/netinet/in.h \
  /usr/include/x86_64-linux-gnu/sys/socket.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
  /usr/include/x86_64-linux-gnu/bits/socket.h \
@@ -114,14 +121,9 @@ PRTP_client-PRTP_client.o: PRTP_client.c /usr/include/stdc-predef.h \
  /usr/include/asm-generic/sockios.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
  /usr/include/x86_64-linux-gnu/bits/socket2.h \
- /usr/include/x86_64-linux-gnu/bits/in.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
- ../src/client_module.h ../src/messages.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
- /usr/include/x86_64-linux-gnu/bits/wchar.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-least.h ../src/void_data.h \
- ../src/logger.h ../src/logger.h ../src/bson_parser.h ../src/bson_msg.h \
- ../src/messages.h ../src/subscriptions.h ../src/sensors.h \
+ /usr/include/x86_64-linux-gnu/bits/in.h ../src/client_module.h \
+ ../src/messages.h ../src/logger.h ../src/logger.h ../src/bson_parser.h \
+ ../src/bson_msg.h ../src/subscriptions.h ../src/sensors.h \
  ../src/sensor_types.h ../src/clients.h ../src/transport.h \
  ../src/fragment_buffer.h ../src/sensor_logger.h ../src/fragment_buffer.h
 /usr/include/stdc-predef.h:
@@ -233,10 +235,21 @@ PRTP_client-PRTP_client.o: PRTP_client.c /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/sigthread.h:
 /usr/include/x86_64-linux-gnu/bits/signal_ext.h:
 /usr/include/assert.h:
+/usr/include/time.h:
+/usr/include/x86_64-linux-gnu/bits/time.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
+/usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h:
 PRTP_client.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
+/usr/include/stdint.h:
+/usr/include/x86_64-linux-gnu/bits/wchar.h:
+/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
+/usr/include/x86_64-linux-gnu/bits/stdint-least.h:
+../src/messages.h:
+../src/void_data.h:
 ../src/utils.h:
 /usr/include/netinet/in.h:
-/usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 /usr/include/x86_64-linux-gnu/sys/socket.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
 /usr/include/x86_64-linux-gnu/bits/socket.h:
@@ -256,19 +269,12 @@ PRTP_client.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h:
 /usr/include/x86_64-linux-gnu/bits/socket2.h:
 /usr/include/x86_64-linux-gnu/bits/in.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
 ../src/client_module.h:
 ../src/messages.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
-/usr/include/stdint.h:
-/usr/include/x86_64-linux-gnu/bits/wchar.h:
-/usr/include/x86_64-linux-gnu/bits/stdint-least.h:
-../src/void_data.h:
 ../src/logger.h:
 ../src/logger.h:
 ../src/bson_parser.h:
 ../src/bson_msg.h:
-../src/messages.h:
 ../src/subscriptions.h:
 ../src/sensors.h:
 ../src/sensor_types.h:

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <poll.h>
 #include <signal.h>
-
+#include "../src/clients.h"
 #include "../src/subscriptions.h"
 #include "../src/bson_parser.h"
 #include "../src/sensor_parser.h"
@@ -14,6 +14,7 @@
 #include "../src/clients_config.h"
 #include "../src/q_agent.h"
 
+
 #define HOSTNAME_SIZE 255
 #define FILENAME_SIZE 255
 
@@ -21,7 +22,6 @@ q_agent_t server_q_agent;
 bool q_learning_enabled = false;
 static struct logger* l = NULL;
 static bool nack_support = true;
-
 void usage()
 {
   printf("\n Usage: iotserver -i <ip address> -p <sensor publish port> -s <client subscribe port> -l <sensor list> -c <clients config> -q <q_table_path>\n\n");
@@ -100,15 +100,84 @@ int parse_parameters(int argc, char *argv[],
   return 0;
 }
 
-int on_client_msg(struct client_node* node, const struct PRTP_packet *msg, struct PRTP_packet** response, int len)
+// int on_client_msg(struct client_node* node, const struct PRTP_packet *msg, struct PRTP_packet** response, int len)
+// {
+//   struct iotmsg_node* sid;
+//   struct sensor_node* sensor;
+//   struct PRTP_packet* sack_msg;
+//   struct PRTP_packet* sub_msg;
+//   struct PRTP_packet* list_resp_msg;
+//   *response = NULL;
+
+//   if( msg->type == LIST ) {
+//     list_resp_msg = create_iotmsg(LIST_RESPONSE);
+//     write_sensor_list( list_resp_msg );
+//     *response = list_resp_msg;
+//     return 0;
+//   }
+
+//   if( msg->type == SUBSCRIBE ) {
+//     sub_msg = msg;
+//     sack_msg = create_iotmsg(SUBSCRIBE_ACK);
+//     for( sid = sub_msg->data.blob; sid != NULL;
+//          sid = sid->next ) {
+//       iotmsg_add_sid( sack_msg, sid->id );
+//       sensor = get_sensor( sid->id );
+//       if( sensor != NULL ) {
+//         if( !subscription_exists( node, sensor ) ) {
+//           add_subscription( node, sensor, ((struct iotmsg_subscribe_node*)sid)->reliable );
+//           iotmsg_set_status( sack_msg, SUBSCRIBE_OK );
+//         }
+//         else
+//           iotmsg_set_status( sack_msg, SUBSCRIBE_ALREADY_EXISTS );
+//       }
+//       else {
+//         iotmsg_set_status( sack_msg, SUBSCRIBE_NOT_FOUND );
+//       }
+//     }
+//     *response = sack_msg;
+//     return 0;
+//   }
+
+//   if( msg->type == KEEP_ALIVE ) {
+//     log_debug(l, "Got a keep-alive from client.\n");
+//     gettimeofday(&node->last_seen, 0);
+//     return 0;
+//   }
+
+//   if( msg->type == UPDATE_ACK ) {
+//     log_debug(l, "Got update acknowledgement from client.\n");
+//     sensor = get_sensor( (msg)->data.sid );
+//     if( sensor ) subscription_on_ack(node, sensor, (msg)->seq_no, len);
+//     return 0;
+//   }
+
+//   if ( msg->type == UPDATE_NACK && nack_support ) {
+//     log_debug(l, "Got negative update acknowledgement from client.\n");
+//     sensor = get_sensor( (msg)->data.sid );
+//     if ( sensor ) subscription_on_nack(node, sensor);
+//     return 0;
+//   }
+
+//   return -1;
+// }
+/* Add this to PRTP_server.c in on_client_msg() function */
+/* In PRTP_server.c - Fixed on_client_msg() function */
+/* Replace the CHAT_ROOM_JOIN and CHAT_MESSAGE handlers with this: */
+
+int on_client_msg(struct client_node* node, const struct PRTP_packet *msg, 
+                  struct PRTP_packet** response, int len)
 {
   struct iotmsg_node* sid;
   struct sensor_node* sensor;
   struct PRTP_packet* sack_msg;
   struct PRTP_packet* sub_msg;
   struct PRTP_packet* list_resp_msg;
+  struct PRTP_packet* chat_msg;
+  struct client_node* target_client;
   *response = NULL;
 
+  /* Handle LIST request */
   if( msg->type == LIST ) {
     list_resp_msg = create_iotmsg(LIST_RESPONSE);
     write_sensor_list( list_resp_msg );
@@ -116,11 +185,11 @@ int on_client_msg(struct client_node* node, const struct PRTP_packet *msg, struc
     return 0;
   }
 
+  /* Handle SUBSCRIBE request */
   if( msg->type == SUBSCRIBE ) {
-    sub_msg = msg;
+    sub_msg = (struct PRTP_packet*)msg;
     sack_msg = create_iotmsg(SUBSCRIBE_ACK);
-    for( sid = sub_msg->data.blob; sid != NULL;
-         sid = sid->next ) {
+    for( sid = sub_msg->data.blob; sid != NULL; sid = sid->next ) {
       iotmsg_add_sid( sack_msg, sid->id );
       sensor = get_sensor( sid->id );
       if( sensor != NULL ) {
@@ -139,25 +208,164 @@ int on_client_msg(struct client_node* node, const struct PRTP_packet *msg, struc
     return 0;
   }
 
+  /* Handle KEEP_ALIVE */
   if( msg->type == KEEP_ALIVE ) {
     log_debug(l, "Got a keep-alive from client.\n");
     gettimeofday(&node->last_seen, 0);
     return 0;
   }
 
+  /* Handle UPDATE_ACK */
   if( msg->type == UPDATE_ACK ) {
     log_debug(l, "Got update acknowledgement from client.\n");
-    sensor = get_sensor( (msg)->data.sid );
-    if( sensor ) subscription_on_ack(node, sensor, (msg)->seq_no, len);
+    sensor = get_sensor( msg->data.sid );
+    if( sensor ) subscription_on_ack(node, sensor, msg->seq_no, len);
     return 0;
   }
 
+  /* Handle UPDATE_NACK */
   if ( msg->type == UPDATE_NACK && nack_support ) {
     log_debug(l, "Got negative update acknowledgement from client.\n");
-    sensor = get_sensor( (msg)->data.sid );
+    sensor = get_sensor( msg->data.sid );
     if ( sensor ) subscription_on_nack(node, sensor);
     return 0;
   }
+if( msg->type == CHAT_ROOM_JOIN ) {
+    if(msg->data.chat.from_client_id && strlen(msg->data.chat.from_client_id) > 0) {
+      strncpy(node->client_id, msg->data.chat.from_client_id, sizeof(node->client_id)-1);
+      node->client_id[sizeof(node->client_id)-1] = '\0';
+      log_print(l, "✓ Client registered: %s\n", node->client_id);
+      
+      // Broadcast join to others
+      for(target_client = get_all_clients(); target_client != NULL; 
+          target_client = target_client->next) {
+        if(strlen(target_client->client_id) > 0 && 
+           strcmp(target_client->client_id, node->client_id) != 0) {
+          
+          chat_msg = create_iotmsg(CHAT_ROOM_JOIN);
+          chat_msg->reliable = true;
+          chat_msg->data.chat.from_client_id = strdup(msg->data.chat.from_client_id);
+          chat_msg->data.chat.to_client_id = NULL;
+          chat_msg->data.chat.message_text = strdup("");
+          chat_msg->data.chat.timestamp = msg->data.chat.timestamp;
+          
+          struct transport_status ts = {0};
+          send_client_message(&ts, chat_msg, target_client);
+          free_iotmsg(chat_msg);
+        }
+      }
+    }
+    return 0;
+}
+
+/* Handle CHAT_MESSAGE */
+if( msg->type == CHAT_MESSAGE ) {
+    // Ensure client is registered (backup registration)
+    if(strlen(node->client_id) == 0 && msg->data.chat.from_client_id) {
+      strncpy(node->client_id, msg->data.chat.from_client_id, sizeof(node->client_id)-1);
+      node->client_id[sizeof(node->client_id)-1] = '\0';
+      log_print(l, "✓ Client registered via message: %s\n", node->client_id);
+    }
+    
+    // Broadcast or direct message
+    if( msg->data.chat.to_client_id == NULL ) {
+      for(target_client = get_all_clients(); target_client != NULL; 
+          target_client = target_client->next) {
+        if(strlen(target_client->client_id) == 0) continue;
+        if(strcmp(target_client->client_id, msg->data.chat.from_client_id) == 0) continue;
+        
+        chat_msg = create_iotmsg(CHAT_MESSAGE);
+        chat_msg->reliable = true;
+        chat_msg->data.chat.from_client_id = strdup(msg->data.chat.from_client_id);
+        chat_msg->data.chat.to_client_id = NULL;
+        chat_msg->data.chat.message_text = strdup(msg->data.chat.message_text);
+        chat_msg->data.chat.timestamp = msg->data.chat.timestamp;
+        
+        struct transport_status ts = {0};
+        send_client_message(&ts, chat_msg, target_client);
+        free_iotmsg(chat_msg);
+      }
+    } else {
+      target_client = find_client_by_id(msg->data.chat.to_client_id);
+      if(target_client) {
+        chat_msg = create_iotmsg(CHAT_MESSAGE);
+        chat_msg->reliable = true;
+        chat_msg->data.chat.from_client_id = strdup(msg->data.chat.from_client_id);
+        chat_msg->data.chat.to_client_id = strdup(msg->data.chat.to_client_id);
+        chat_msg->data.chat.message_text = strdup(msg->data.chat.message_text);
+        chat_msg->data.chat.timestamp = msg->data.chat.timestamp;
+        
+        struct transport_status ts = {0};
+        send_client_message(&ts, chat_msg, target_client);
+        free_iotmsg(chat_msg);
+      }
+    }
+    return 0;
+}
+/* In PRTP_server.c - Replace the CHAT_USER_LIST handler in on_client_msg() */
+
+/* Handle CHAT_USER_LIST request */
+if( msg->type == CHAT_USER_LIST ) {
+    struct PRTP_packet* user_list_msg = create_iotmsg(CHAT_USER_LIST);
+    int client_count = 0;
+    int added_count = 0;
+    
+    log_print(l, "\n=== SERVER: Building User List ===\n");
+    
+    /* First pass - count and log all clients */
+    for(target_client = get_all_clients(); target_client != NULL; 
+        target_client = target_client->next) {
+      client_count++;
+      log_print(l, "Client %d: addr=%p, ID='%s' (len=%zu)\n", 
+                client_count,
+                (void*)target_client,
+                target_client->client_id, 
+                strlen(target_client->client_id));
+    }
+    
+    log_print(l, "Total clients connected: %d\n", client_count);
+    
+    /* Second pass - add to list */
+    for(target_client = get_all_clients(); target_client != NULL; 
+        target_client = target_client->next) {
+      if(strlen(target_client->client_id) > 0) {
+        log_print(l, "  ✓ Adding to list: %s\n", target_client->client_id);
+        struct iotmsg_node* new_node = iotmsg_add_sid(user_list_msg, target_client->client_id);
+        if(new_node) {
+          added_count++;
+          log_print(l, "    Added successfully (node=%p, id=%s)\n", 
+                    (void*)new_node, new_node->id);
+        } else {
+          log_print(l, "    ✗ Failed to add!\n");
+        }
+      } else {
+        log_print(l, "  - Skipping client with empty ID\n");
+      }
+    }
+    
+    log_print(l, "Added %d users to list\n", added_count);
+    log_print(l, "user_list_msg->data.blob = %p\n", (void*)user_list_msg->data.blob);
+    
+    /* Verify the list before sending */
+    if(user_list_msg->data.blob) {
+      struct iotmsg_node* verify_node;
+      int verify_count = 0;
+      log_print(l, "Verifying list contents:\n");
+      for(verify_node = user_list_msg->data.blob; verify_node != NULL; 
+          verify_node = verify_node->next) {
+        verify_count++;
+        log_print(l, "  Node %d: %s\n", verify_count, verify_node->id);
+      }
+      log_print(l, "Total nodes in list: %d\n", verify_count);
+    } else {
+      log_print(l, "⚠️  WARNING: List is empty (blob is NULL)!\n");
+    }
+    
+    log_print(l, "=== END User List Building ===\n\n");
+    
+    *response = user_list_msg;
+    return 0;
+}
 
   return -1;
 }

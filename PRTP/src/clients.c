@@ -13,9 +13,10 @@
 #include "logger.h"
 #include "clients_config.h"
 
-static struct client_node* clients_list = NULL;
+ struct client_node* clients_list = NULL;
 static const struct timeval tv_keep_alive = {KEEP_ALIVE_TIMEOUT/1000, KEEP_ALIVE_TIMEOUT%1000};
 static struct logger* l = NULL;
+
 void clear_clients_list();
 
 void init_clients()
@@ -48,6 +49,7 @@ int send_client_message(struct transport_status* t_status, struct PRTP_packet* m
 {
   return transport_send(&(node->transport), t_status, msg);
 }
+/* In clients.c - Fixed add_client() function */
 
 struct client_node* add_client(const struct sockaddr_storage* addr, socklen_t len, int sd)
 {
@@ -63,12 +65,18 @@ struct client_node* add_client(const struct sockaddr_storage* addr, socklen_t le
   create_fragment_buffer( "none", &(node->transport.frag_buffer) );
   assign_scheduler(node);
 
+  // IMPORTANT: Initialize client_id to empty string, not auto-generate
+  // The client will send its ID via CHAT_ROOM_JOIN or CHAT_MESSAGE
+  memset(node->client_id, 0, sizeof(node->client_id));
+  
   node->next = clients_list;
   gettimeofday(&node->last_seen, 0);
   clients_list = node;
+  
+  log_print(l, "New client connected (ID will be assigned on registration)\n");
+  
   return node;
 }
-
 /* Read a packet from clients */
 int read_client(int sd, struct client_node** ret_node, struct PRTP_packet** msg)
 {
@@ -146,6 +154,27 @@ int prune_expired_clients()
   }
   return pruned;
 }
+
+
+/* Helper function to find client by ID */
+struct client_node* find_client_by_id(const char* client_id) {
+  extern struct client_node* clients_list; // You'll need to make this accessible
+  struct client_node* node;
+  
+  for(node = clients_list; node != NULL; node = node->next) {
+    if(strcmp(node->client_id, client_id) == 0) {
+      return node;
+    }
+  }
+  return NULL;
+}
+
+/* Helper to get all clients - add this to clients.c */
+struct client_node* get_all_clients(void) {
+  extern struct client_node* clients_list;
+  return clients_list;
+}
+
 
 void print_client(struct client_node* node)
 {

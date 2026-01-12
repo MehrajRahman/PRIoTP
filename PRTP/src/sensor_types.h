@@ -13,7 +13,8 @@ enum SENSOR_TYPE {
   TEMP,
   DEVICE,
   GPS,
-  CAMERA
+  CAMERA,
+  CHAT
 };
 
 void sensor_type_to_string(enum SENSOR_TYPE type, char* res);

@@ -90,8 +90,10 @@ PRTP_server-PRTP_server.o: PRTP_server.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
  /usr/include/x86_64-linux-gnu/bits/sigthread.h \
- /usr/include/x86_64-linux-gnu/bits/signal_ext.h ../src/subscriptions.h \
- ../src/sensors.h /usr/include/netinet/in.h \
+ /usr/include/x86_64-linux-gnu/bits/signal_ext.h ../src/clients.h \
+ /usr/include/x86_64-linux-gnu/sys/time.h ../src/transport.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
+ /usr/include/netinet/in.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/sys/socket.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
@@ -110,16 +112,15 @@ PRTP_server-PRTP_server.o: PRTP_server.c /usr/include/stdc-predef.h \
  /usr/include/asm-generic/sockios.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
  /usr/include/x86_64-linux-gnu/bits/socket2.h \
- /usr/include/x86_64-linux-gnu/bits/in.h ../src/sensor_types.h \
+ /usr/include/x86_64-linux-gnu/bits/in.h ../src/messages.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
- /usr/include/x86_64-linux-gnu/bits/stdint-least.h ../src/logger.h \
- ../src/void_data.h ../src/messages.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h ../src/clients.h \
- /usr/include/x86_64-linux-gnu/sys/time.h ../src/transport.h \
- ../src/fragment_buffer.h ../src/bson_parser.h ../src/sensor_parser.h \
- ../src/logger.h ../src/utils.h ../src/sensor_logger.h \
- ../src/clients_config.h ../src/q_agent.h
+ /usr/include/x86_64-linux-gnu/bits/stdint-least.h ../src/void_data.h \
+ ../src/fragment_buffer.h ../src/subscriptions.h ../src/sensors.h \
+ ../src/sensor_types.h ../src/logger.h ../src/clients.h \
+ ../src/bson_parser.h ../src/sensor_parser.h ../src/logger.h \
+ ../src/utils.h ../src/sensor_logger.h ../src/clients_config.h \
+ ../src/q_agent.h
 /usr/include/stdc-predef.h:
 /usr/include/unistd.h:
 /usr/include/features.h:
@@ -221,8 +222,10 @@ PRTP_server-PRTP_server.o: PRTP_server.c /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h:
 /usr/include/x86_64-linux-gnu/bits/sigthread.h:
 /usr/include/x86_64-linux-gnu/bits/signal_ext.h:
-../src/subscriptions.h:
-../src/sensors.h:
+../src/clients.h:
+/usr/include/x86_64-linux-gnu/sys/time.h:
+../src/transport.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
 /usr/include/netinet/in.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 /usr/include/x86_64-linux-gnu/sys/socket.h:
@@ -244,19 +247,18 @@ PRTP_server-PRTP_server.o: PRTP_server.c /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h:
 /usr/include/x86_64-linux-gnu/bits/socket2.h:
 /usr/include/x86_64-linux-gnu/bits/in.h:
-../src/sensor_types.h:
+../src/messages.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
 /usr/include/stdint.h:
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-least.h:
-../src/logger.h:
 ../src/void_data.h:
-../src/messages.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
-../src/clients.h:
-/usr/include/x86_64-linux-gnu/sys/time.h:
-../src/transport.h:
 ../src/fragment_buffer.h:
+../src/subscriptions.h:
+../src/sensors.h:
+../src/sensor_types.h:
+../src/logger.h:
+../src/clients.h:
 ../src/bson_parser.h:
 ../src/sensor_parser.h:
 ../src/logger.h:
