@@ -59,3 +59,21 @@ python3 sensor-launcher.py localhost 5004 10 4 & python3 STGen_server.py ../conf
 // Tab 2
 ./PRTP_client -l./client1_sensor_log -s127.0.0.1 -rtemp_1  -p5005 -A
 ```
+
+```
+
+# Terminal 1 - Server (watch the logs)
+./PRTP_server -ilocalhost -p5000 -s5001 -l./sensor.list -c../conf/test.conf
+
+# Terminal 2 - Client 1
+./PRTP_client -s 127.0.0.1 -p 5001 2>/dev/null
+
+# Terminal 3 - Client 2
+./PRTP_client -s 127.0.0.1 -p 5001 2>/dev/null
+
+# Terminal 4 - Client 3
+./PRTP_client -s 127.0.0.1 -p 5001 2>/dev/null
+
+# In any client, type:
+/users
+```
