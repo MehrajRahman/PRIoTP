@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLIENTS=10
+CLIENTS=50
 CLIENT_DIR="$HOME/CS/PRIoTP/PRTP/application"
 SERVER_IP="127.0.0.1"
 PORT=5005
