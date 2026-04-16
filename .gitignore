@@ -1,31 +1,98 @@
-Makefile
-Makefile.in
-aclocal.m4
-autom4te.cache/
-compile
-config.*
-configure
-configure~
-depcomp
-install-sh
-libtool
-ltmain.sh
-missing
-stamp-h1
-ar-lib
+# ── Build artefacts ──────────────────────────────────────────────────────────
+PRTP/.deps/
+PRTP/.libs/
+PRTP/src/.deps/
+PRTP/src/.libs/
+PRTP/application/.deps/
+PRTP/application/.libs/
+PRTP/m4/
 
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
+# Compiled binaries
+PRTP/application/PRTP_client
+PRTP/application/PRTP_server
+PRTP/application/q_agent_test
+PRTP/application/libpubsub.la
+PRTP/src/libpubsub.la
 
-*.log
-path.txt
+# Object / libtool files
+**/*.o
+**/*.lo
+**/*.la
+**/*.a
 
+# Autotools / libtool generated
+PRTP/aclocal.m4
+PRTP/ar-lib
+PRTP/compile
+PRTP/config.guess
+PRTP/config.h
+PRTP/config.h.in~
+PRTP/config.status
+PRTP/config.sub
+PRTP/configure
+PRTP/configure~
+PRTP/depcomp
+PRTP/install-sh
+PRTP/libtool
+PRTP/ltmain.sh
+PRTP/missing
+PRTP/stamp-h1
+PRTP/Makefile
+PRTP/Makefile.in
+PRTP/src/Makefile
+PRTP/src/Makefile.in
+PRTP/application/Makefile
+PRTP/application/Makefile.in
+PRTP/tests/Makefile
+PRTP/tests/Makefile.in
+PRTP/src/.dirstamp
+PRTP/application/.dirstamp
+
+# ── Experiment / benchmark results ───────────────────────────────────────────
+launcher/stress_results_*/
+launcher/benchmark_results_*/
+launcher/netem_experiment_*/
+launcher/scalability_results_*/
+launcher/stress_run_*.log
+launcher/scalability_output.log
+
+# uACK analysis outputs
+launcher/uack_analysis/
+launcher/uack_real_results/
+
+# ── Sensor / client runtime logs ─────────────────────────────────────────────
+PRTP/application/client*_sensor_log/
+PRTP/application/test_c*/
+PRTP/application/dbg_client_log/
+PRTP/application/*.log
+PRTP/application/*.data
+PRTP/src/sensor_log/
+PRTP/src/server_sensor_log/
+
+# Generated sensor list (recreated at runtime)
+launcher/sensor.list
+PRTP/application/sensor.list
+PRTP/src/sensor.list
+
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
+.venv/
+*.egg-info/
 
+# ── LaTeX build outputs ───────────────────────────────────────────────────────
+docs/**/*.aux
+docs/**/*.toc
+docs/**/*.nav
+docs/**/*.snm
+docs/**/*.vrb
+docs/**/*.out
+docs/**/*.log
+docs/**/*.pdf
 
-.DS_Store
-Thumbs.db
+# ── Editor / OS ───────────────────────────────────────────────────────────────
+.vscode/
+*.swp
 *~
+.DS_Store

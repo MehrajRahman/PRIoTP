@@ -1,0 +1,3 @@
+timestamp,epoch,cpu_system_pct,cpu_clients_pct,mem_system_mb,mem_clients_mb,throughput_lines_per_sec,user_count,phase
+2026-04-17 01:39:35,1776368375,44.44,0.00,11641.79,1291.39,0,720,active
+2026-04-17 01:39:42,1776368382,35.72,0.00,11662.20,1291.39,0,720,active
