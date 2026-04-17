@@ -1,0 +1,225 @@
+[95m [1776432793.618469] BSON Message: [0mBSON msg: serializing.
+[0m[95m [1776432793.618483] BSON Message: [0mBSON msg: serializing.
+[0m[95m [1776432793.639477] Transport: [0mReceived 180 bytes
+[0m[95m [1776432793.639494] BSON Parser: [0mParsing client packet
+[0m[95m [1776432793.639500] BSON Parser: [0mDocument length: 180 bytes
+[0m[95m [1776432793.639506] BSON Parser: [0mBSON parser: type: '16' key: 'type'
+[0m[95m [1776432793.639511] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432793.639516] BSON Parser: [0m4
+[0m[95m [1776432793.639521] BSON Parser: [0mBSON parser: type: '8' key: 'reliable'
+[0m[95m [1776432793.639526] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432793.639531] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432793.639536] BSON Message: [0mBSON parser: debug . 0 reliable 
+[0m[95m [1776432793.639541] BSON Parser: [0mBSON parser: type: '16' key: 'seq_no'
+[0m[95m [1776432793.639546] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432793.639551] BSON Parser: [0m63
+[0m[95m [1776432793.639556] BSON Parser: [0mBSON parser: type: '8' key: 'end_marker'
+[0m[95m [1776432793.639560] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432793.639565] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432793.639570] BSON Message: [0mBSON parser: debug . 0 end_marker 
+[0m[95m [1776432793.639574] BSON Parser: [0mBSON parser: type: '8' key: 'fragmented'
+[0m[95m [1776432793.639579] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432793.639583] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432793.639588] BSON Message: [0mBSON parser: debug . 0 fragmented 
+[0m[95m [1776432793.639593] BSON Parser: [0mBSON parser: type: '8' key: 'utilize_timestamp'
+[0m[95m [1776432793.639598] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432793.639602] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432793.639607] BSON Message: [0mBSON parser: debug . 0 utilize_timestamp 
+[0m[95m [1776432793.639612] BSON Parser: [0mBSON parser: type: '16' key: 'frag_no'
+[0m[95m [1776432793.639616] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432793.639621] BSON Parser: [0m0
+[0m[95m [1776432793.639626] BSON Parser: [0mBSON parser: type: '16' key: 'frag_total'
+[0m[95m [1776432793.639631] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432793.639635] BSON Parser: [0m1
+[0m[95m [1776432793.639640] BSON Parser: [0mBSON parser: type: '16' key: 'timestamp'
+[0m[95m [1776432793.639645] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432793.639649] BSON Parser: [0m-1206321152
+[0m[95m [1776432793.639654] BSON Parser: [0mBSON parser: type: '3' key: 'data'
+[0m[95m [1776432793.639659] BSON Parser: [0mBSON parser: object
+[0m[95m [1776432793.639663] BSON Parser: [0mParsing client packet
+[0m[95m [1776432793.639668] BSON Parser: [0mDocument length: 46 bytes
+[0m[95m [1776432793.639675] BSON Parser: [0mBSON parser: type: '16' key: 'sensor_type'
+[0m[95m [1776432793.639679] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432793.639684] BSON Parser: [0m2
+[0m[91m [1776432793.639688] BSON Message: [0mInside sensor type parsing.
+[91m [1776432793.639692] BSON Message: [0mInside sensor type parsing end.
+[95m [1776432793.639695] BSON Parser: [0mBSON parser: type: '2' key: 'sid'
+[0m[95m [1776432793.639700] BSON Parser: [0mBSON parser: string
+[0m[95m [1776432793.639704] BSON Parser: [0mBSON parser: 8 'device_0'
+[0m[91m [1776432793.639709] BSON Message: [0mInside sid parsing
+[95m [1776432793.639712] BSON Parser: [0mBSON parser: type: '8' key: 'dev'
+[0m[95m [1776432793.639717] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432793.639721] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432793.639726] BSON Message: [0mBSON parser: debug . 0 dev 
+[0m[95m [1776432793.639730] BSON Parser: [0mBSON parser: return. 46 length document has 46 bytes.
+[0m[95m [1776432793.639735] BSON Parser: [0mBSON parser: return. 180 length document has 180 bytes.
+[0m[95m [1776432793.639740] Transport: [0mComing to handle fragmentation 2
+[0m[91m [1776432793.639751] Client: [0m---before writing in log upd_msg->seq_no= 63
+[91m [1776432793.639754] Client: [0m---before writing in log upd_msg->type= 4
+[91m [1776432793.639758] Client: [0m---before writing in log upd_msg->frag_no= 0
+[91m [1776432793.639761] Client: [0m---before writing in log upd_msg->reliable= 1
+[91m [1776432793.639764] Client: [0m---before writing in log upd_msg->data.sensor_type= 2
+[91m [1776432793.639767] Client: [0m---before writing in log upd_msg->data.sid= device_0
+[91m [1776432793.639770] Client: [0m---after writing in log upd_msg->seq_no = 63
+[91m [1776432793.639773] Client: [0m---after writing in log upd_msg->data.sensor_type = 2
+[91m [1776432793.639777] Client: [0m---after writing in log upd_msg->reliable = 1
+[95m [1776432793.639780] Client: [0mSending acknowledgment.
+[0m[95m [1776432793.639784] Client Module: [0m---------Sending Update acknowledgment from client.-----------
+[0m[95m [1776432793.639789] BSON Message: [0m-------------Before Serializing Update acknowledgment.--------------
+[0m[95m [1776432793.639794] BSON Message: [0m-------------After Serializing Update acknowledgment.--------------
+[0m[95m [1776432793.639799] BSON Message: [0m-------------Before Serializing Update acknowledgment.--------------
+[0m[95m [1776432793.639804] BSON Message: [0m-------------After Serializing Update acknowledgment.--------------
+[0m[95m [1776432795.559] Transport: [0mReceived 180 bytes
+[0m[95m [1776432795.577] BSON Parser: [0mParsing client packet
+[0m[95m [1776432795.583] BSON Parser: [0mDocument length: 180 bytes
+[0m[95m [1776432795.590] BSON Parser: [0mBSON parser: type: '16' key: 'type'
+[0m[95m [1776432795.597] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432795.604] BSON Parser: [0m4
+[0m[95m [1776432795.610] BSON Parser: [0mBSON parser: type: '8' key: 'reliable'
+[0m[95m [1776432795.617] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432795.623] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432795.629] BSON Message: [0mBSON parser: debug . 0 reliable 
+[0m[95m [1776432795.636] BSON Parser: [0mBSON parser: type: '16' key: 'seq_no'
+[0m[95m [1776432795.643] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432795.649] BSON Parser: [0m64
+[0m[95m [1776432795.656] BSON Parser: [0mBSON parser: type: '8' key: 'end_marker'
+[0m[95m [1776432795.662] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432795.668] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432795.674] BSON Message: [0mBSON parser: debug . 0 end_marker 
+[0m[95m [1776432795.681] BSON Parser: [0mBSON parser: type: '8' key: 'fragmented'
+[0m[95m [1776432795.688] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432795.695] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432795.700] BSON Message: [0mBSON parser: debug . 0 fragmented 
+[0m[95m [1776432795.707] BSON Parser: [0mBSON parser: type: '8' key: 'utilize_timestamp'
+[0m[95m [1776432795.712] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432795.719] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432795.725] BSON Message: [0mBSON parser: debug . 0 utilize_timestamp 
+[0m[95m [1776432795.731] BSON Parser: [0mBSON parser: type: '16' key: 'frag_no'
+[0m[95m [1776432795.737] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432795.743] BSON Parser: [0m0
+[0m[95m [1776432795.750] BSON Parser: [0mBSON parser: type: '16' key: 'frag_total'
+[0m[95m [1776432795.757] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432795.764] BSON Parser: [0m1
+[0m[95m [1776432795.771] BSON Parser: [0mBSON parser: type: '16' key: 'timestamp'
+[0m[95m [1776432795.777] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432795.784] BSON Parser: [0m-1206255616
+[0m[95m [1776432795.790] BSON Parser: [0mBSON parser: type: '3' key: 'data'
+[0m[95m [1776432795.797] BSON Parser: [0mBSON parser: object
+[0m[95m [1776432795.803] BSON Parser: [0mParsing client packet
+[0m[95m [1776432795.809] BSON Parser: [0mDocument length: 46 bytes
+[0m[95m [1776432795.820] BSON Parser: [0mBSON parser: type: '16' key: 'sensor_type'
+[0m[95m [1776432795.827] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432795.834] BSON Parser: [0m2
+[0m[91m [1776432795.840] BSON Message: [0mInside sensor type parsing.
+[91m [1776432795.845] BSON Message: [0mInside sensor type parsing end.
+[95m [1776432795.851] BSON Parser: [0mBSON parser: type: '2' key: 'sid'
+[0m[95m [1776432795.858] BSON Parser: [0mBSON parser: string
+[0m[95m [1776432795.865] BSON Parser: [0mBSON parser: 8 'device_0'
+[0m[91m [1776432795.872] BSON Message: [0mInside sid parsing
+[95m [1776432795.877] BSON Parser: [0mBSON parser: type: '8' key: 'dev'
+[0m[95m [1776432795.884] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432795.891] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432795.898] BSON Message: [0mBSON parser: debug . 0 dev 
+[0m[95m [1776432795.905] BSON Parser: [0mBSON parser: return. 46 length document has 46 bytes.
+[0m[95m [1776432795.912] BSON Parser: [0mBSON parser: return. 180 length document has 180 bytes.
+[0m[95m [1776432795.919] Transport: [0mComing to handle fragmentation 2
+[0m[91m [1776432795.927] Client: [0m---before writing in log upd_msg->seq_no= 64
+[91m [1776432795.931] Client: [0m---before writing in log upd_msg->type= 4
+[91m [1776432795.936] Client: [0m---before writing in log upd_msg->frag_no= 0
+[91m [1776432795.941] Client: [0m---before writing in log upd_msg->reliable= 1
+[91m [1776432795.945] Client: [0m---before writing in log upd_msg->data.sensor_type= 2
+[91m [1776432795.950] Client: [0m---before writing in log upd_msg->data.sid= device_0
+[91m [1776432795.954] Client: [0m---after writing in log upd_msg->seq_no = 64
+[91m [1776432795.958] Client: [0m---after writing in log upd_msg->data.sensor_type = 2
+[91m [1776432795.963] Client: [0m---after writing in log upd_msg->reliable = 1
+[95m [1776432795.967] Client: [0mSending acknowledgment.
+[0m[95m [1776432795.973] Client Module: [0m---------Sending Update acknowledgment from client.-----------
+[0m[95m [1776432795.980] BSON Message: [0m-------------Before Serializing Update acknowledgment.--------------
+[0m[95m [1776432795.986] BSON Message: [0m-------------After Serializing Update acknowledgment.--------------
+[0m[95m [1776432795.992] BSON Message: [0m-------------Before Serializing Update acknowledgment.--------------
+[0m[95m [1776432795.999] BSON Message: [0m-------------After Serializing Update acknowledgment.--------------
+[0m[95m [1776432796.208680] Transport: [0mReceived 165 bytes
+[0m[95m [1776432796.208698] BSON Parser: [0mParsing client packet
+[0m[95m [1776432796.208703] BSON Parser: [0mDocument length: 165 bytes
+[0m[95m [1776432796.208709] BSON Parser: [0mBSON parser: type: '16' key: 'type'
+[0m[95m [1776432796.208714] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432796.208720] BSON Parser: [0m4
+[0m[95m [1776432796.208727] BSON Parser: [0mBSON parser: type: '8' key: 'reliable'
+[0m[95m [1776432796.208731] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432796.208736] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432796.208741] BSON Message: [0mBSON parser: debug . 0 reliable 
+[0m[95m [1776432796.208747] BSON Parser: [0mBSON parser: type: '16' key: 'seq_no'
+[0m[95m [1776432796.208753] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432796.208758] BSON Parser: [0m65
+[0m[95m [1776432796.208762] BSON Parser: [0mBSON parser: type: '8' key: 'end_marker'
+[0m[95m [1776432796.208767] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432796.208773] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432796.208779] BSON Message: [0mBSON parser: debug . 0 end_marker 
+[0m[95m [1776432796.208783] BSON Parser: [0mBSON parser: type: '8' key: 'fragmented'
+[0m[95m [1776432796.208788] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432796.208792] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432796.208796] BSON Message: [0mBSON parser: debug . 0 fragmented 
+[0m[95m [1776432796.208808] BSON Parser: [0mBSON parser: type: '8' key: 'utilize_timestamp'
+[0m[95m [1776432796.208814] BSON Parser: [0mBSON parser: boolean false
+[0m[95m [1776432796.208818] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432796.208823] BSON Message: [0mBSON parser: debug . 0 utilize_timestamp 
+[0m[95m [1776432796.208827] BSON Parser: [0mBSON parser: type: '16' key: 'frag_no'
+[0m[95m [1776432796.208834] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432796.208839] BSON Parser: [0m0
+[0m[95m [1776432796.208844] BSON Parser: [0mBSON parser: type: '16' key: 'frag_total'
+[0m[95m [1776432796.208849] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432796.208854] BSON Parser: [0m1
+[0m[95m [1776432796.208861] BSON Parser: [0mBSON parser: type: '3' key: 'data'
+[0m[95m [1776432796.208867] BSON Parser: [0mBSON parser: object
+[0m[95m [1776432796.208872] BSON Parser: [0mParsing client packet
+[0m[95m [1776432796.208876] BSON Parser: [0mDocument length: 46 bytes
+[0m[95m [1776432796.208882] BSON Parser: [0mBSON parser: type: '16' key: 'sensor_type'
+[0m[95m [1776432796.208889] BSON Parser: [0mBSON parser: int32:
+[0m[95m [1776432796.208894] BSON Parser: [0m2
+[0m[91m [1776432796.208898] BSON Message: [0mInside sensor type parsing.
+[91m [1776432796.208902] BSON Message: [0mInside sensor type parsing end.
+[95m [1776432796.208907] BSON Parser: [0mBSON parser: type: '2' key: 'sid'
+[0m[95m [1776432796.208914] BSON Parser: [0mBSON parser: string
+[0m[95m [1776432796.208919] BSON Parser: [0mBSON parser: 8 'device_0'
+[0m[91m [1776432796.208923] BSON Message: [0mInside sid parsing
+[95m [1776432796.208928] BSON Parser: [0mBSON parser: type: '8' key: 'dev'
+[0m[95m [1776432796.208935] BSON Parser: [0mBSON parser: boolean true
+[0m[95m [1776432796.208940] BSON Message: [0mBSON parser: debug .
+[0m[95m [1776432796.208944] BSON Message: [0mBSON parser: debug . 0 dev 
+[0m[95m [1776432796.208949] BSON Parser: [0mBSON parser: return. 46 length document has 46 bytes.
+[0m[95m [1776432796.208956] BSON Parser: [0mBSON parser: return. 165 length document has 165 bytes.
+[0m[95m [1776432796.208962] Transport: [0mComing to handle fragmentation 2
+[0m[91m [1776432796.208967] Client: [0m---before writing in log upd_msg->seq_no= 65
+[91m [1776432796.208970] Client: [0m---before writing in log upd_msg->type= 4
+[91m [1776432796.208974] Client: [0m---before writing in log upd_msg->frag_no= 0
+[91m [1776432796.208979] Client: [0m---before writing in log upd_msg->reliable= 0
+[91m [1776432796.208982] Client: [0m---before writing in log upd_msg->data.sensor_type= 2
+[91m [1776432796.208985] Client: [0m---before writing in log upd_msg->data.sid= device_0
+[91m [1776432796.208989] Client: [0m---after writing in log upd_msg->seq_no = 65
+[91m [1776432796.208992] Client: [0m---after writing in log upd_msg->data.sensor_type = 2
+[91m [1776432796.208995] Client: [0m---after writing in log upd_msg->reliable = 0
+[95m [1776432798.624022] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432803.629027] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432808.634148] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432813.639085] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432818.644029] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432823.649082] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432828.654028] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432833.659021] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432838.664031] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432843.669028] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432848.674029] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432853.681097] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432858.686030] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432863.691190] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432868.696041] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432873.701129] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432878.706033] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432883.711101] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432888.716026] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432893.721021] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432898.731795] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432903.736019] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432908.741082] Client: [0mTimeout reached, sending keep_alive.
+[0m[95m [1776432913.746028] Client: [0mTimeout reached, sending keep_alive.
+[0m

@@ -29,7 +29,7 @@ void log_print(const struct logger* l, const char* format, ...)
 }
 
 /* ENABLE DEBUG LOGGING - Uncomment this line to see Q-agent decisions */
-#define DEBUG_LOG
+/* #define DEBUG_LOG */
 
 void log_debug(const struct logger* l, const char* format, ...)
 {

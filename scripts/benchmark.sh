@@ -38,10 +38,10 @@ RESULTS_DIR="$BASE_DIR/results"
 
 SERVER_IP="127.0.0.1"
 PORT_CLIENT=5005
-DURATION=45          # seconds
+DURATION=300          # seconds
 WARMUP=5              # seconds to ignore at the start
-INTERVAL=5            # sample every N seconds
-NUM_SENSORS=1         # number of sensors to register per client
+INTERVAL=3            # sample every N seconds
+NUM_SENSORS=3         # number of sensors to register per client
 
 # ---------------------------------------------------------------------------
 # 1.  Validate input

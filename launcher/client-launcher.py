@@ -30,7 +30,6 @@ MONITOR_SCRIPT  = os.path.join(SCRIPT_DIR, "monitor_server.py")
 # Seconds to wait between launching each client (allows server to process subscription)
 CLIENT_STAGGER_SECS = 1.0
 
-
 def usage():
     print("client-launcher.py <server_ip> <server_port> <sim_time> <num_clients> [--monitor]")
 
